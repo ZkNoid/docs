@@ -81,7 +81,8 @@ Object manipulated by user. Each tick user action is processed that moves cart o
 Static objects that bound game field. Left, top and right borders collision make the ball bounce. 
 Bottom border collision means that user lost
 
-## Collisions
+
+## Board collisions
 
 ### Left border collision
 
@@ -201,3 +202,67 @@ let isFail = bottomBump.and(
 
 this.winable = this.winable.and(isFail.not());
 ```
+
+
+## Brick collisions
+### Horisontal brick collision
+
+Happens when <code>ball.pos.y &isin; [bottomBorder, topBorder]</code> where `bottomBorder` and `topBorder` are a brick borders.
+
+<Image src={'/vertical_brick.svg'} width={300} height={300} style={{'padding-top': '10px'}} />
+
+Processing in smartcontract:
+
+```typescript
+
+const horizontalCollision = rightBorder
+    .sub(this.ball.position.x)
+    .isPositive()
+    .and(this.ball.position.x.sub(leftBorder).isPositive());
+
+/*
+    Detect where collision ocured
+    /////////////// vertical part of a brick //////////////////////////
+    y = d
+    ay = bx + c;
+    c = ay1 - bx1
+        a - ball.speed.x
+        b - ball.speed.y
+    bx = ay - c
+    bx = ad - c;
+
+    x \incl [ brick.pos.x - BRICK_HALF_WIDTH, brick.pos.x + BRICK_HALF_WIDTH ]
+    bx \incl [b(brics.pos.x - BRICK_HALF_WIDTH, b(brick.pos.x + BRICK_HALF_WIDTH))]
+    ad - c \incl [b(brics.pos.x - BRICK_HALF_WIDTH, b(brick.pos.x + BRICK_HALF_WIDTH))]
+*/
+
+// Top horizontal
+let d1 = topBorder;
+let adc1 = a.mul(d1).sub(c);
+let adc1Sign = adc1.div(adc1.magnitude);
+let crossBrickTop = adc1
+    .sub(b.mul(leftBorder))
+    .mul(adc1Sign)
+    .isPositive()
+    .and(b.mul(rightBorder).sub(adc1).mul(adc1Sign).isPositive());
+let hasTopBump = crossBrickTop.and(
+    prevBallPos.y.sub(topBorder).isPositive()
+);
+
+// Bottom horisontal
+let d2 = bottomBorder;
+let adc2 = a.mul(d2).sub(c);
+let adc2Sign = adc2.div(adc2.magnitude);
+let crossBrickBottom = adc2
+    .sub(b.mul(leftBorder))
+    .mul(adc2Sign)
+    .isPositive()
+    .and(b.mul(rightBorder).sub(adc2).mul(adc2Sign).isPositive());
+let hasBottomBump = crossBrickBottom.and(
+    bottomBorder.sub(prevBallPos.y).isPositive()
+);
+```
+
+### Vertical brick collision
+
+The same as horisontal but with x, y coordinates changed exchanged
