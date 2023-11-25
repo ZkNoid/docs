@@ -1,0 +1,11 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>Layer 1</title>
+  <rect id="svg_1" height="445" width="81" y="40" x="75" stroke="#000" fill="#fff"/>
+  <ellipse ry="70" rx="70.5" id="svg_2" cy="96" cx="321.5" stroke="#000" fill="#fff"/>
+  <text transform="rotate(-42, 323.6, 96)" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="51" stroke-width="0" id="svg_5" y="116" x="290" stroke="#000" fill="#000000">ZK</text>
+  <line id="svg_8" y2="271" x2="163" y1="147" x1="263" stroke-dasharray="2,2" stroke="#000" fill="none"/>
+  <line id="svg_9" y2="485" x2="424" y1="286" x1="164" stroke-dasharray="2,2" stroke="#000" fill="none"/>
+ </g>
+</svg>

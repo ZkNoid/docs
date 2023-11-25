@@ -1,0 +1,57 @@
+## Arkanoid like game verification
+
+All the game process is divided into ticks that runs N times per second.
+During each tick user input like arrow pressing is captured
+
+```typescript
+export class Tick extends Struct({
+    action: UInt64,
+}) {}
+```
+
+Game smartcontract stores the game state: coordinates of game items, score, win information
+
+```typescript
+export class GameContext extends Struct({
+    bricks: Bricks,
+    totalLeft: UInt64,
+    ball: Ball,
+    platform: Platform,
+    score: UInt64,
+    winable: Bool,
+    alreadyWon: Bool,
+})
+    processTick(tick: Tick): void {
+        ...
+    }
+```
+
+Game state is changed based on user input during ticks. 
+Game objects are identified by coorinates that are changed every tick based on velocities and collisions.
+Collisions are calculated using coordinates:
+
+```typescript
+// Bottom horisontal
+let d2 = bottomBorder;
+let adc2 = a.mul(d2).sub(c);
+let adc2Sign = adc2.div(adc2.magnitude);
+let crossBrickBottom = adc2
+    .sub(b.mul(leftBorder))
+    .mul(adc2Sign)
+    .isPositive()
+    .and(b.mul(rightBorder).sub(adc2).mul(adc2Sign).isPositive());
+let hasBottomBump = crossBrickBottom.and(
+    bottomBorder.sub(prevBallPos.y).isPositive()
+);
+
+...
+
+this.ball.speed.y = Provable.if(
+    collisionHappen.and(hasBottomBump.or(hasTopBump)),
+    this.ball.speed.y.neg(),
+    this.ball.speed.y
+);
+```
+
+This allows the whole game process to be deterministic and proveable. 
+Sources of the game verification can be found [here](https://github.com/aii23/MinaZKanoid/blob/develop/packages/chain/src/GameHub.ts)
