@@ -1,7 +1,7 @@
 export default {
   logo: <span>ZkNoid Project</span>,
   project: {
-    link: 'https://zknoid.io/'
+    link: 'hhttps://github.com/aii23/MinaZKanoid'
   },
 
   footer: {
@@ -14,6 +14,9 @@ export default {
         .
       </span>
     )
-  }
+  },
+  useNextSeoProps: () => ({
+    titleTemplate: '%s – ZkNoid'
+  }),
 }
 
