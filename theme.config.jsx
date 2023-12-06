@@ -1,7 +1,7 @@
 export default {
     logo: <span>ZkNoid Project</span>,
     project: {
-      link: 'https://github.com/aii23/MinaZKanoid'
+      link: 'https://zknoid.io/'
     },
 
     footer: {
