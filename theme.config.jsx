@@ -1,9 +1,18 @@
 export default {
   logo: <span>ZkNoid Project</span>,
   project: {
-    link: 'hhttps://github.com/aii23/MinaZKanoid'
+    link: 'https://github.com/ZkNoid'
   },
 
+  head: (
+    <>
+      <link
+        rel="shortcut icon"
+        type="image/x-icon"
+        href={"/favicon.ico"}
+      />
+      </>
+  ),
   footer: {
     text: (
       <span>
