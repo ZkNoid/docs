@@ -17,25 +17,38 @@ Fair leaderbords, winning real valuables for gaming skills – this is all about
 
 
 ## How it works
-### Arkanoid like game
+### Arkanoid game
 
 Game process is divided into ticks - N times per second user input like arrow pressing is processed by ZK circuit.
 The whole game result is clearly defined by the user input. 
 As displayed game is synchronized with ZK circuit that's generated recursively during the game the final proof verifies the fairness of the whole game
 
-<Video style={{ 'padding-top': '10px' }} src="/zknoid_demo_3.mp4"/>
+<video width="400px" height="400px" autoPlay muted loop style={{'padding-top': '10px'}}>
+  <source src={'/zknoid_demo_3.mp4'} type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
 
-Other game types will be introduced later
-
-## Technologies
+#### Technologies
 
 Project leverages `Mina Protocol`'s unique zero knowledge technology. 
 Smart contracts powered by ZK generate the proof that is validated in Mina network and only fair players are recoreded in leaderboard
 
 Debug mode shows frontend and contracts state synchronization
 
-<Video style={{ 'padding-top': '10px' }} src="/zknoid_demo_debug.mp4"/>
+<video width="400px" height="400px" autoPlay muted loop style={{'padding-top': '10px'}}>
+  <source src={'/zknoid_demo_debug.mp4'} type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
 
+### Randzu game
+
+A multiplayer game that is similar to tic-tac-toe. 
+Leverages power of <a href="https://protokit.dev/">Protokit</a> to enable multiplayer, gasless and fast transactions 
+
+<video width="600px" height="600px" autoPlay muted loop style={{'padding-top': '10px'}}>
+  <source src={'/randzu_multiplayer.mp4'} type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
 
 ## Benefits
 
@@ -48,3 +61,6 @@ __High skilled players, enjoyers__ monetize your skills or game luck. Pay for pl
 
 
 __Projects__ run competitions with private leaderboard among users with reward based on skills and spent time to keep users interested. 
+
+
+Learn more about ZK gaming in [our Medium articles](https://zknoid.medium.com/ )
