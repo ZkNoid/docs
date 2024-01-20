@@ -6,4 +6,11 @@ const withNextra = nextra({
 })
  
 export default withNextra({
+  redirects: () => [
+    {
+      source: '/',
+      destination: '/docs/',
+      statusCode: 301
+    },
+  ]
 })
