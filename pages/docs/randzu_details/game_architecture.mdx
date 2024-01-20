@@ -1,0 +1,25 @@
+---
+title: 'Game architecture'
+description: 'Explore how ZK games verification works'
+---
+
+## Ranzu game architecture overview
+
+Ranzu is a multiplayer game and it involves matchmaking.
+Implementation can be found [here](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/MatchMaker.ts)
+
+Players pool is divided into rounds. Round occures every 5 blocks passed in networks. 
+Users who want to play needs to re-register in rounds until opponent is not found. 
+
+
+Matchmaking occures when user calls `register` function on the players pool for the latest round. 
+Firstly it checks that user can participate in game and is not already registered in the round.
+Then it registes user session key so game transactions can be executed without confirmation.
+
+Then pool queue is checked. If there is an opponent, he will be removed from queue and a game with current player is initialized.
+If there're no opponents in the queue, user is registered in the round pool. Then if opponent joined, he will initialize game with you
+
+<video width="800px" height="800px" autoPlay muted loop style={{paddingTop: '10px'}}>
+  <source src={'/randzu_multiplayer.mp4'} type="video/mp4" />
+    Your browser does not support the video tag.
+</video>

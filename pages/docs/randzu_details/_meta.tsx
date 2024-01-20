@@ -1,8 +1,6 @@
 export default {
     "rules": {
-        
     },
-    "game_verification": {
-
+    "game_architecture": {
     }
   }

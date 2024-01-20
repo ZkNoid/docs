@@ -10,6 +10,12 @@ import Image from 'next/image';
 When a multipleyer game started, match making occurs. 
 A competitor is chosen from the waiting room pool based on similar game level or other conditions. 
 If there’re no suitable opponents, user is registered in the waiting room pool and waits for someone else to join. 
+
+<video width="800px" height="800px" autoPlay muted loop style={{paddingTop: '10px'}}>
+  <source src={'/randzu_multiplayer.mp4'} type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
+
 Once opponent is found, session key is generated on frontend and registered in the network. 
 Now game can make background transaction with no players interruption
 
