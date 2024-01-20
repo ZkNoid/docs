@@ -13,7 +13,7 @@ If there’re no suitable opponents, user is registered in the waiting room pool
 Once opponent is found, session key is generated on frontend and registered in the network. 
 Now game can make background transaction with no players interruption
 
-<Image src={'/players_pool.webp'} width={500} height={500} style={{'padding-top': '10px'}} ></Image>
+<Image src={'/players_pool.webp'} width={500} height={500} alt='Players pool' style={{paddingTop: '10px'}} ></Image>
 
 After round created user1 move is awaited. 
 If user haven’t made his move within allowed time, user2 can prove it user1 move is skipped. 
@@ -21,11 +21,11 @@ Is user1 skipped several moves in a row, he disqualified and user2 wins.
 After user1 move transaction is executed and on-chain event is emitted. 
 This event is handled by user2 frontend that displays the updated game state and asks user2 to move.
 
-<Image src={'/multiplayer_events_emitting.webp'} width={400} height={400} style={{'padding-top': '10px'}} ></Image>
+<Image src={'/multiplayer_events_emitting.webp'} width={400} height={400} alt='Multiplayer events' style={{paddingTop: '10px'}} ></Image>
 
 After one user won or there was a draw, competition is marked as finished and prize is unbridged to the winner to L1 network
 
 This can be combined with game process proving as app network supports ZK proofs verification. 
 While playing their move users recursively accumulate game process proofs, then final proof is verified in the move transaction.
 
-<Image src={'/recursive_proofs.webp'} width={700} height={700} style={{'padding-top': '10px'}} ></Image>
+<Image src={'/recursive_proofs.webp'} width={700} height={700} alt='Recuvrsive proofs' style={{paddingTop: '10px'}} ></Image>

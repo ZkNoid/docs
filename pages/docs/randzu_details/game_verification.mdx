@@ -67,7 +67,7 @@ Sources of the game verification can be found [here](https://github.com/aii23/Mi
 
 ZkNoid use field with size FIELD_WIDTH * FIELD_HEIGHT. Bottom left corner is placed to the zero point
 
-<Image src={'/coord.svg'} width={500} height={500} style={{'padding-top': '10px'}} ></Image>
+<Image src={'/coord.svg'} width={500} height={500} style={{paddingTop: '10px'}} ></Image>
 
 ## Game entities
 
@@ -95,7 +95,7 @@ Happens when ball's `x` coordinate is less than `0`.
 
 In that case `x` coordinate is reset to `0` and `x` velocity is reversed   
 
-<Image src={'/left_collision.svg'} width={200} height={200} style={{'padding-top': '10px'}} ></Image>
+<Image src={'/left_collision.svg'} width={200} height={200} style={{paddingTop: '10px'}} ></Image>
 
 Processing in smartcontract:
 
@@ -125,7 +125,7 @@ Happens when ball's `y` coordinate is greater than `FIELD_HEIGHT`.
 
 In that case `y` coordinate is reset to `FIELD_HEIGHT` and `y` velocity is reversed.
 
-<Image src={'/top_collision.svg'} width={300} height={300} style={{'padding-top': '10px'}} ></Image>
+<Image src={'/top_collision.svg'} width={300} height={300} style={{paddingTop: '10px'}} ></Image>
 
 Processing in smartcontract:
 
@@ -155,7 +155,7 @@ Happens when ball's `x` coordinate is greater than `FIELD_WIDTH`.
 
 In that case `x` coordinate is reset to `FIELD_WIDTH` and `x` velocity is reversed.
 
-<Image src={'/right_collision.svg'} width={300} height={300} style={{'padding-top': '10px'}} ></Image>
+<Image src={'/right_collision.svg'} width={300} height={300} style={{paddingTop: '10px'}} ></Image>
 
 Processing in smartcontract:
 
@@ -214,7 +214,7 @@ this.winable = this.winable.and(isFail.not());
 
 Happens when <code>ball.pos.y &isin; [bottomBorder, topBorder]</code> where `bottomBorder` and `topBorder` are a brick borders.
 
-<Image src={'/vertical_brick.svg'} width={300} height={300} style={{'padding-top': '10px'}} />
+<Image src={'/vertical_brick.svg'} width={300} height={300} style={{paddingTop: '10px'}} />
 
 Processing in smartcontract:
 
