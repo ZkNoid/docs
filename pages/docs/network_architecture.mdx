@@ -1,0 +1,49 @@
+---
+title: 'Network architecture'
+description: 'Explore ZkNoid network architecture'
+---
+
+import Image from 'next/image';
+
+## Network architecture
+
+Mina network has several limitations that makes it hard to implement on-chain gaming.
+Mina zkApps has limitation of 8 memory slots per smartcontract. 
+It's complicated to implement gasless transactions and block production is slower that required for realtime games.
+To solve this challenges our games use both Mina and [Protokit](https://protokit.dev/) networks
+
+### What is Protokit
+
+Protokit is a product developed by Mina Protocol team. 
+Basically it’s a tool that allows to set up your own app-specific Zk Rollup network. 
+This network is separated from the Mina network. 
+It’s impossible to access Mina zkApps – the only contracts exist in the network are defined by network developer and known as runtime modules. 
+As only they are presented in the network they can be identified by names instead of addresses.
+
+The only connection between Mina and app specific networks is bridging. 
+Mina token can be bridged to an internal user balance in an app smartcontract. 
+Then other smartcontracts can check user balance and decrease it to pay for actions. 
+For now only MINA native currency can be bridged. 
+However it will be possible to bridge Mina tokens when the token inside Mina network is standardised. 
+In this case user deposit amounts and token infos will be stored inside app network.
+
+<Image src={'/network_arch_bridging.webp'} width={700} height={700} style={{'padding-top': '10px'}} ></Image>
+
+### Why Protokit
+
+The app network works off the Mina chain but captures state changes and pushes proofs to the Mina network. 
+It solves mina limitations of storing smart contract state in not more than 8 slots of 32-bytes size while inheriting the L1 network security. 
+Allows to handy implement such features as leaderboards, players waiting room for matchmaking.
+
+Another usefull fact about app network – you can decide whether to charge fee from users for transaction or to make transactions completely free. 
+
+Gassless transactions are crucial for gaming UX.
+Now a session key can be created on frontend, registered by user and used to sign game transactions in background without interruptions for transactions confirmation.
+
+### Networks interplay
+
+To cook both Mina and Protokit app networks inside one application we decided to consider Protokit network as a game room network. 
+User connects to it only when enters the game round. If game round is payed and required a fee to play, assets are bridged before entering
+
+<Image src={'/network_interplay.webp'} width={500} height={500} style={{'padding-top': '10px'}} ></Image>
+
