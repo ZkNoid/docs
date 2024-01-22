@@ -246,7 +246,7 @@ For collision to happen, two condition should met:
 
 For checking trajectory pass we use this equations
 
-```typescrypt
+```typescript
 /*
     Detect where collision ocured
     ////////////// vertical part of a brick //////////////////////////
@@ -294,7 +294,7 @@ let hasRightBump = crossBrickRight.and(hasRightPass);
 
 After checking all borders collision, we should check for double collision, where ball cross both borders during tick. In such situation we should found out which border have been hitted first, and leave only this border collision.
 
-```typescrypt
+```typescript
 hasRightBump = Provable.if(
     moveRight,
     hasRightBump.and(hasTopBump.not()).and(hasBottomBump.not()),
@@ -327,7 +327,7 @@ To mitigate this in game context we store also 2 nearest bricks. And check colli
 
 This how function to find nearestBricks looks like
 
-```typescrypt
+```typescript
 updateNearestBricks(): void {
     this.nearestBricks = this.bricks.bricks.slice(0, NEAREST_BRICKS_NUM);
     let firstDist = this.distPow2ToBrick(this.bricks.bricks[0]);
@@ -388,7 +388,7 @@ updateNearestBricks(): void {
 
 We using position to find the brick, which value we should update
 
-```typescrypt
+```typescript
 updateBrick(pos: IntPoint, value: UInt64): void {
     for (let i = 0; i < MAX_BRICKS; i++) {
         this.bricks.bricks[i].value = Provable.if(
@@ -413,13 +413,13 @@ There can be situations, where alreadyWon == true, but ball hits the bottom and 
 
 Winnable update:
 
-```typescrypt
+```typescript
 this.winable = this.winable.and(isFail.not());
 ```
 
 AlreadyWon update:
 
-```typescrypt
+```typescript
 this.alreadyWon = Provable.if(
     this.totalLeft.equals(UInt64.from(1)).and(this.winable),
     Bool(true),
@@ -429,7 +429,7 @@ this.alreadyWon = Provable.if(
 
 Final check:
 
-```typescrypt
+```typescript
 gameProcessProof.publicOutput.currentState.alreadyWon.assertTrue();
 ```
 
@@ -445,7 +445,7 @@ Solutuin for this it recursive proofs. Insted of having big proof, of full game 
 
 In processTicks(listed below) we have as inputs previos proof, and ticks. We checks, that previosProof is valid and then continue to process state with new ticks.
 
-```typescrypt
+```typescript
 export function processTicks(
     prevProof: SelfProof<void, GameProcessPublicOutput>,
     inputs: GameInputs
@@ -470,7 +470,7 @@ Final game verification consist of 3 parts:
 2. Checking game process proof
 3. Checking game win conditions
 
-```typescrypt
+```typescript
 export function checkGameRecord(
     mapGenerationProof: MapGenerationProof,
     gameProcessProof: GameProcessProof
