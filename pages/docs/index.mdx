@@ -18,31 +18,37 @@ Fair leaderbords, winning real valuables for gaming skills – this is all about
 ## How it works
 ### Arkanoid game
 
+#### Rules
+
+In Ankanoid, your objective is to break all the bricks on the screen using a bouncing ball and a platform. 
+You can control the game by using the left and right arrow keys on your keyboard to move the platform. 
+You need to bounce the ball and prevent it from falling off the bottom of the screen.
+
+#### Implementation
 Game process is divided into ticks - N times per second user input like arrow pressing is processed by ZK circuit.
-The whole game result is clearly defined by the user input. 
+The whole game result is clearly defined by the user input. Cart has acceleration that affects ball when touching.
 As displayed game is synchronized with ZK circuit that's generated recursively during the game the final proof verifies the fairness of the whole game
-
-<video width="400px" height="400px" autoPlay muted loop style={{paddingTop: '10px'}}>
-  <source src={'/zknoid_demo_3.mp4'} type="video/mp4" />
-    Your browser does not support the video tag.
-</video>
-
-#### Technologies
-
-Project leverages `Mina Protocol`'s unique zero knowledge technology. 
-Smart contracts powered by ZK generate the proof that is validated in Mina network and only fair players are recoreded in leaderboard
-
-Debug mode shows frontend and contracts state synchronization. Read more about verification [here](/docs/arkanoid_details/game_verification)
 
 <video width="400px" height="400px" autoPlay muted loop style={{paddingTop: '10px'}}>
   <source src={'/zknoid_demo_debug_2.mp4'} type="video/mp4" />
     Your browser does not support the video tag.
 </video>
 
+
+#### Technologies
+
+Project leverages `Mina Protocol`'s unique zero knowledge technology. 
+Smart contracts powered by ZK recursively accumulate the proof that is validated in Mina network and only fair players are recoreded in leaderboard
+
+Debug mode shows frontend and contracts state synchronization. Read more about verification [here](/docs/arkanoid_details/game_verification)
+
 ### Randzu game
 
 A multiplayer game that is similar to tic-tac-toe. 
 Leverages power of <a href="https://protokit.dev/">Protokit</a> to enable multiplayer, gasless and fast transactions.
+
+#### Matchmaking
+
 Matchmaking allows opponent to find each other and start game once opponent is found
 
 <video width="600px" height="600px" autoPlay muted loop style={{paddingTop: '10px'}}>
@@ -50,22 +56,25 @@ Matchmaking allows opponent to find each other and start game once opponent is f
     Your browser does not support the video tag.
 </video>
 
+
+#### Rules
+
 Randzu is a game played on a 15x15 grid, similar to tic-tac-toe. The goal is to get five of your marks in a row, either horizontally.
+Two players take turns placing their mark, using balls of different collors. 
+The goal is to get five of your marks in a row, either horizontally, vertically, or diagonally.
+
+#### Implementation
+
 If background session is not enabled, each move requires a signature
 
 <video width="600px" height="600px" autoPlay muted loop style={{paddingTop: '10px'}}>
-  <source src={'/randzu_gameplay.mp4'} type="video/mp4" />
+  <source src={'/randzu_gameplay_short.mp4'} type="video/mp4" />
     Your browser does not support the video tag.
 </video>
 
 Player can turn on background sessions. 
 In this case a temporal keypair is created on front-end that will sign transactions without user interruption.
-This makes game UX just like in Web2 games
-
-<video width="600px" height="600px" autoPlay muted loop style={{paddingTop: '10px'}}>
-  <source src={'/randzu_gasless.mp4'} type="video/mp4" />
-    Your browser does not support the video tag.
-</video>
+This makes game UX just like in Web2 games. [Learn more about background sessions]()
 
 
 ## Benefits
