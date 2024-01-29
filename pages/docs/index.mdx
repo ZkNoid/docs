@@ -35,19 +35,38 @@ Smart contracts powered by ZK generate the proof that is validated in Mina netwo
 Debug mode shows frontend and contracts state synchronization. Read more about verification [here](/docs/arkanoid_details/game_verification)
 
 <video width="400px" height="400px" autoPlay muted loop style={{paddingTop: '10px'}}>
-  <source src={'/zknoid_demo_debug.mp4'} type="video/mp4" />
+  <source src={'/zknoid_demo_debug_2.mp4'} type="video/mp4" />
     Your browser does not support the video tag.
 </video>
 
 ### Randzu game
 
 A multiplayer game that is similar to tic-tac-toe. 
-Leverages power of <a href="https://protokit.dev/">Protokit</a> to enable multiplayer, gasless and fast transactions 
+Leverages power of <a href="https://protokit.dev/">Protokit</a> to enable multiplayer, gasless and fast transactions.
+Matchmaking allows opponent to find each other and start game once opponent is found
 
 <video width="600px" height="600px" autoPlay muted loop style={{paddingTop: '10px'}}>
   <source src={'/randzu_multiplayer.mp4'} type="video/mp4" />
     Your browser does not support the video tag.
 </video>
+
+Randzu is a game played on a 15x15 grid, similar to tic-tac-toe. The goal is to get five of your marks in a row, either horizontally.
+If background session is not enabled, each move requires a signature
+
+<video width="600px" height="600px" autoPlay muted loop style={{paddingTop: '10px'}}>
+  <source src={'/randzu_gameplay.mp4'} type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
+
+Player can turn on background sessions. 
+In this case a temporal keypair is created on front-end that will sign transactions without user interruption.
+This makes game UX just like in Web2 games
+
+<video width="600px" height="600px" autoPlay muted loop style={{paddingTop: '10px'}}>
+  <source src={'/randzu_gasless.mp4'} type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
+
 
 ## Benefits
 
@@ -63,3 +82,25 @@ __Projects__ run competitions with private leaderboard among users with reward b
 
 
 Learn more about ZK gaming in [our Medium articles](https://zknoid.medium.com/ )
+
+
+## Project state
+
+Project is actively developing. 
+Public deployment of actual app demo is blocked because proto-kit project is not ready for public deployment yet. 
+App requires to be cloned and launched localy until proto-kit is ready:
+
+```bash
+git clone https://github.com/ZkNoid/zknoid
+cd zknoid
+
+# ensures you have the right node js version
+nvm use
+pnpm install
+```
+
+### Games implemented
+
+__Arkanoid game__: recursive proofs, game verification, cart acceleration that affects ball on collision, leaderboard, competitions creation and funding 
+
+__Randzu game__: multiplayer, matchmaking, background gasless sessions, paid competitions, game verification
