@@ -8,16 +8,97 @@ description: 'Explore how ZK games verification works'
 Ranzu is a multiplayer game and it involves matchmaking.
 Implementation can be found [here](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/MatchMaker.ts)
 
+### Matchmaking
+
 Players pool is divided into rounds. Round occures every 5 blocks passed in networks. 
 Users who want to play needs to re-register in rounds until opponent is not found. 
 
+```typescript
+const roundId = this.network.block.height.div(PENDING_BLOCKS_NUM);
+```
 
 Matchmaking occures when user calls `register` function on the players pool for the latest round. 
 Firstly it checks that user can participate in game and is not already registered in the round.
 Then it registes user session key so game transactions can be executed without confirmation.
 
-Then pool queue is checked. If there is an opponent, he will be removed from queue and a game with current player is initialized.
-If there're no opponents in the queue, user is registered in the round pool. Then if opponent joined, he will initialize game with you
+```typescript
+@runtimeMethod()
+public register(sessionKey: PublicKey, timestamp: UInt64): void {
+  // If player in game – revert
+  assert(this.activeGameId.get(this.transaction.sender).orElse(UInt64.from(0)).equals(UInt64.from(0)), "Player already in game");
+
+  // Registering player session key
+  this.sesions.set(sessionKey, this.transaction.sender);
+  const roundId = this.network.block.height.div(PENDING_BLOCKS_NUM);
+
+  // User can't re-register in round queue if already registered
+  assert(
+    this.queueRegisteredRoundUsers.get(new RoundIdxUser({ roundId, userAddress: this.transaction.sender })).isSome.not(),
+    "User already in queue"
+  );
+```
+
+Then pool queue is checked. If there is an opponent, he will be removed from the queue and a game with current player is initialized.
+If there're no opponents in the queue, user is registered in the round pool. Then if opponent joined, he will initialize the game
+
+```typescript
+  const queueLength = this.queueLength.get(roundId).orElse(UInt64.from(0));
+
+  const opponentReady = queueLength.greaterThan(UInt64.from(0));
+  const opponent = this.queueRoundUsersList.get(
+    new RoundIdxIndex({ roundId, index: queueLength.sub(Provable.if(opponentReady, UInt64.from(1), UInt64.from(0))) })
+  );
+
+  const gameId = this.gamesNum.get().orElse(UInt64.from(0)).add(UInt64.from(1));
+  // Setting active game if opponent found
+  this.games.set(
+    Provable.if(
+      opponentReady,
+      gameId,
+      UInt64.from(0)
+    ),
+    new GameInfo({
+      player1: this.transaction.sender,
+      player2: opponent.value.userAddress,
+      currentMoveUser: this.transaction.sender,
+      field: RandzuField.from(Array(RANDZU_FIELD_SIZE).fill(Array(RANDZU_FIELD_SIZE).fill(0))),
+      winner: PublicKey.empty()
+    })
+  );
+```
+
+Case if opponent is not found
+
+```typescript
+  // If opponent not found – adding current user to the list
+  this.queueRoundUsersList.set(
+    new RoundIdxIndex({ roundId, index: queueLength }),
+    new QueueListItem({ userAddress: Provable.if(opponentReady, PublicKey.empty(), this.transaction.sender), registrationTimestamp: timestamp })
+  );
+
+  // If opponent not found – registeting current user in the list
+  this.queueRegisteredRoundUsers.set(
+    new RoundIdxUser(
+      { roundId, userAddress: Provable.if(opponentReady, PublicKey.empty(), this.transaction.sender) }
+    ),
+    Bool(true)
+  );
+
+  // If opponent not found – incrementing queue length. If found – removing opponent by length decreasing 
+  this.queueLength.set(roundId, (Provable.if(opponentReady, queueLength.sub(Provable.if(opponentReady, UInt64.from(1), UInt64.from(0))), queueLength.add(1))));
+```
+
+Then it's registered that player and opponent are in an active game. They won't be able to participate new games until they finish the active one
+
+```typescript
+  // Assigning new game to player if opponent found
+  this.activeGameId.set(this.transaction.sender, Provable.if(opponentReady, gameId, UInt64.from(0)));
+
+  // Setting that opponent is in game if opponent found
+  this.activeGameId.set(Provable.if(opponentReady, opponent.value.userAddress, PublicKey.empty()), gameId);
+```
+
+Here is how matchmaking looks like on front-end
 
 <video width="800px" height="800px" autoPlay muted loop style={{paddingTop: '10px'}}>
   <source src={'/randzu_multiplayer_enc.mp4'} type="video/mp4" />
