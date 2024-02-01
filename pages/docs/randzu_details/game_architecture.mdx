@@ -28,7 +28,7 @@ public register(sessionKey: PublicKey, timestamp: UInt64): void {
   assert(this.activeGameId.get(this.transaction.sender).orElse(UInt64.from(0)).equals(UInt64.from(0)), "Player already in game");
 
   // Registering player session key
-  this.sesions.set(sessionKey, this.transaction.sender);
+  this.sessions.set(sessionKey, this.transaction.sender);
   const roundId = this.network.block.height.div(PENDING_BLOCKS_NUM);
 
   // User can't re-register in round queue if already registered
@@ -115,7 +115,7 @@ This function accepts new field state and a win witness if user proposed to be t
 ```typescript
 @runtimeMethod()
 public makeMove(gameId: UInt64, newField: RandzuField, winWitness: WinWitness): void {
-  const sessionSender = this.sesions.get(this.transaction.sender);
+  const sessionSender = this.sessions.get(this.transaction.sender);
   const sender = Provable.if(sessionSender.isSome, sessionSender.value, this.transaction.sender);
 
   const game = this.games.get(gameId);
