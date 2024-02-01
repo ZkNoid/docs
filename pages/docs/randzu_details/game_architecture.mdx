@@ -3,10 +3,10 @@ title: 'Game architecture'
 description: 'Explore how ZK games verification works'
 ---
 
-## Ranzu game architecture overview
+## Achitecture overview
 
 Ranzu is a multiplayer game and it involves matchmaking.
-Implementation can be found [here](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/MatchMaker.ts)
+Implementation can be found here – [MatchMaker.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/MatchMaker.ts)
 
 ### Matchmaking
 
@@ -102,6 +102,99 @@ Here is how matchmaking looks like on front-end
 
 <video width="800px" height="800px" autoPlay muted loop style={{paddingTop: '10px'}}>
   <source src={'/randzu_multiplayer_enc.mp4'} type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
+
+
+### Making moves
+
+Once game is initialized players can call `makeMove` function 
+
+This function accepts new field state and a win witness if user proposed to be the winner
+
+```typescript
+@runtimeMethod()
+public makeMove(gameId: UInt64, newField: RandzuField, winWitness: WinWitness): void {
+  const sessionSender = this.sesions.get(this.transaction.sender);
+  const sender = Provable.if(sessionSender.isSome, sessionSender.value, this.transaction.sender);
+
+  const game = this.games.get(gameId);
+  assert(game.isSome, "Invalid game id");
+  assert(
+    game.value.currentMoveUser.equals(sender),
+    `Not your move: ${sender.toBase58()}`
+  );
+  assert(
+    game.value.winner.equals(PublicKey.empty()),
+    `Game finished`
+  );
+  winWitness.assertCorrect();
+```
+
+If win is proposed, it's checked that user really have marks of his color in a row either horizontally, vertically or diagonally.
+If non-zero win witness is provided and this check is passed, it's considered that current user is the winner
+
+```typescript
+  let addedCellsNum = UInt64.from(0);
+  for (let i = 0; i < RANDZU_FIELD_SIZE; i++) {
+    for (let j = 0; j < RANDZU_FIELD_SIZE; j++) {
+      let currentFieldCell = game.value.field.value[i][j];
+      let nextFieldCell = newField.value[i][j];
+
+      assert(Bool.or(currentFieldCell.equals(UInt32.from(0)), currentFieldCell.equals(nextFieldCell)),
+        `Modified filled cell at ${i}, ${j}`
+      );
+
+      addedCellsNum.add(Provable.if(currentFieldCell.equals(nextFieldCell), UInt64.from(0), UInt64.from(1)));
+
+      assert(addedCellsNum.lessThanOrEqual(UInt64.from(1)), `Not only one cell added. Error at ${i}, ${j}`);
+      assert(
+        Provable.if(currentFieldCell.equals(nextFieldCell), Bool(true), nextFieldCell.equals(currentUserId)),
+        'Added opponent`s color'
+      );
+
+      for (let wi = 0; wi < CELLS_LINE_TO_WIN; wi++) {
+        const winPosX = winWitness.directionX.mul(UInt32.from(wi)).add(winWitness.x);
+        const winPosY = winWitness.directionY.mul(UInt32.from(wi)).add(winWitness.y);
+        assert(Bool.or(
+          winProposed.not(),
+          Provable.if(
+            Bool.and(winPosX.equals(UInt32.from(i)), winPosY.equals(UInt32.from(j))),
+            nextFieldCell.equals(currentUserId),
+            Bool(true)
+          )
+        ), 'Win not proved');
+      }
+    }
+  }
+  
+  game.value.winner = Provable.if(winProposed, game.value.currentMoveUser, PublicKey.empty());
+```
+
+If game is ended, players active games are resetted
+
+```typescript
+  // Removing active game for players if game ended
+  this.activeGameId.set(Provable.if(winProposed, game.value.player2, PublicKey.empty()), UInt64.from(0));
+  this.activeGameId.set(Provable.if(winProposed, game.value.player1, PublicKey.empty()), UInt64.from(0));
+```
+
+Then field is updated and turn is passed to the other player
+
+```typescript
+  game.value.field = newField;
+  game.value.currentMoveUser = Provable.if(
+    game.value.currentMoveUser.equals(game.value.player1),
+    game.value.player2,
+    game.value.player1
+  );
+  this.games.set(gameId, game.value);
+```
+
+Here is how moving looks like on front-end
+
+<video width="800px" height="800px" autoPlay muted loop style={{paddingTop: '10px'}}>
+  <source src={'/randzu_gameplay_enc.mp4'} type="video/mp4" />
     Your browser does not support the video tag.
 </video>
 
