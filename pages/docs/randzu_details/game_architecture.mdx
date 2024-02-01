@@ -10,16 +10,16 @@ Implementation can be found here – [MatchMaker.ts](https://github.com/ZkNoid/z
 
 ### Matchmaking
 
-Players pool is divided into rounds. Round occures every 5 blocks passed in networks. 
-Users who want to play needs to re-register in rounds until opponent is not found. 
+Players pool is divided into rounds. Round occures every 5 blocks passed in network. 
+Users who want to play need to re-register in rounds until opponent is not found. 
 
 ```typescript
 const roundId = this.network.block.height.div(PENDING_BLOCKS_NUM);
 ```
 
-Matchmaking occures when user calls `register` function on the players pool for the latest round. 
+Matchmaking occures when user calls `register` passing session key. 
 Firstly it checks that user can participate in game and is not already registered in the round.
-Then it registes user session key so game transactions can be executed without confirmation.
+It registes user session key so next game transactions can be executed without confirmation.
 
 ```typescript
 @runtimeMethod()
@@ -39,7 +39,7 @@ public register(sessionKey: PublicKey, timestamp: UInt64): void {
 ```
 
 Then pool queue is checked. If there is an opponent, he will be removed from the queue and a game with current player is initialized.
-If there're no opponents in the queue, user is registered in the round pool. Then if opponent joined, he will initialize the game
+If there're no opponents in the queue, user is registered in the round pool. Then if an opponent joined, he will initialize the game
 
 ```typescript
   const queueLength = this.queueLength.get(roundId).orElse(UInt64.from(0));
