@@ -10,7 +10,8 @@ import Image from 'next/image';
 Mina network has several limitations that makes it hard to implement on-chain gaming.
 Mina zkApps has limitation of 8 memory slots per smartcontract. 
 It's complicated to implement gasless transactions and block production is slower that required for realtime games.
-To solve this challenges our games use both Mina and [Protokit](https://protokit.dev/) networks
+To solve this challenges our games use both Mina and [Protokit](https://protokit.dev/) networks<br />
+App chain is deployed to https://protokit.zknoid.io/graphql
 
 ### What is Protokit
 
@@ -39,6 +40,7 @@ Another usefull fact about app network – you can decide whether to charge fee 
 
 Gassless transactions are crucial for gaming UX.
 Now a session key can be created on frontend, registered by user and used to sign game transactions in background without interruptions for transactions confirmation.
+
 
 ### Networks interplay
 
