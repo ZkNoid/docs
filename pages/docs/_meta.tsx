@@ -22,5 +22,5 @@ export default {
     "title": "Tokenomics"
   },
   "business_model": "💰 Revenue model",
-  "tokenomics": "🧩 Tokenomics"
+  "tokenomics": "🧩 Tokenomics",
 }
