@@ -1,0 +1,31 @@
+### SDK
+
+ZkNoid is an extandable platform that provides SDK for developers that allows to easily create and their game. 
+ZkGame can be created by implementing engine contracts or by using game engine SDKs
+
+#### SDK contracts
+SDK includes as a set of _engine_ smartcontracts that can be inherited to enable specific features.<br/>
+Engine contracts cover the core ZK gaming concepts. Contracts integration offers the most flexible way of integration
+allowing to implement advanced provable games logic while inheriting useful platform features
+
+
+##### Competitions and leaderboard system
+Allows to integrate and manage free and paid competitions in the game. For competitions leaderboard is created
+- Engine contract: [engine/GameHub.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/engine/GameHub.ts)
+- Usage example: [ArkanoidGameHub.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/ArkanoidGameHub.ts)
+
+
+##### Matchmaking system
+Allows to integrate players queue, opponent finding that makes possible PvP games
+- Engine contract: [engine/MatchMaker.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/engine/MatchMaker.ts)
+- Usage example: [RandzuLogic.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/RandzuLogic.ts)
+
+
+##### Proof of shuffle
+_To be announced_
+
+
+#### Game engine SDKs
+Allows to use game engines to create embedded ZkGames. <br/>
+Wraps base ZK game concepts or custom contracts and allows to use them inside such game engines like Unity, Cocos2d, Godot. 
+Implementation _to be announced_

@@ -17,6 +17,12 @@ export default {
   "randzu_details": {
     "title": "🎴 Randzu game",
   },
+  "-- For developers": {
+    "type": "separator",
+    "title": "For developers"
+  },
+
+  "sdk": "📦 SDK",
   "-- Tokenomics": {
     "type": "separator",
     "title": "Tokenomics"
