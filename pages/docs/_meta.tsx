@@ -23,6 +23,7 @@ export default {
   },
 
   "sdk": "📦 SDK",
+  "research_grants": "📄 Research, develop grants",
   "-- Tokenomics": {
     "type": "separator",
     "title": "Tokenomics"
