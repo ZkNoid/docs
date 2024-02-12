@@ -1,5 +1,4 @@
 import { FileTree } from 'nextra/components'
-import { Link } from 'next/link';
 
 ### Building a ZK game
 
@@ -99,7 +98,7 @@ Instrstructure can be used by importing hooks or components, using engine contra
 
 Can be used to access the game app-chain
 
-Usage 
+##### Usage 
 
 ```ts
 import { AppChainClientContext } from "@zknoid/contexts";
@@ -110,19 +109,23 @@ const client = useContext<
     >(AppChainClientContext);
 ```
 
+##### Returns 
+```ts
+ClientAppChain<any>
+```
 
 ### Hooks:
 #### useNetworkStore
-Returns L1 
+Returns common network and wallet state info
 
-Usage
+##### Usage
 ```ts
 import { useNetworkStore } from '@zknoid/hooks';
 
 const network = useNetworkStore();
 ```
 
-Returns 
+##### Returns 
 ```ts
 export interface NetworkState {
   minaNetwork: Network | undefined;
@@ -144,14 +147,14 @@ export interface NetworkState {
 #### useProtokitChainStore
 
 Can be use to fetch protokit app-chain block height. 
-Usage
+##### Usage
 ```ts
 import { useProtokitChainStore } from '@zknoid/hooks';
 
 const chain = useProtokitChainStore();
 ```
 
-Returns
+##### Returns
 ```ts
 interface ChainState {
   loading: boolean;
@@ -165,14 +168,14 @@ interface ChainState {
 
 #### useChainStore
 Can be used to access L1 network info
-Usage
+##### Usage
 ```ts
 import { useChainStore } from '@zknoid/hooks';
 
 const chain = useChainStore();
 ```
 
-Returns 
+##### Returns 
 ```ts
 interface ChainState {
   loading: boolean;
@@ -187,14 +190,14 @@ interface ChainState {
 #### useProtokitBalancesStore
 Allows to fetch tokens on-ramped to the app network for the current user
 
-Usage
+##### Usage
 ```ts
 import { useProtokitBalancesStore } from "@zknoid/hooks";
 
 const balancesStore = useProtokitBalancesStore();
 ```
 
-Returns
+##### Returns
 ```ts
 interface BalancesState {
   loading: boolean;
@@ -209,7 +212,7 @@ interface BalancesState {
 #### useMinaBridge
 Allows to on-ramp and off-ramp funds to/from protokit app chain.
 
-Usage
+##### Usage
 ```ts
 import { useMinaBridge } from "@zknoid/hooks";
 
@@ -223,7 +226,7 @@ const bridge = useMinaBridge();
   }
 ```
 
-Returns 
+##### Returns 
 
 ```ts
 (amount: number) => Promise<void>
@@ -233,7 +236,7 @@ Returns
 #### useSessionKeyStore
 Can be used to create sessions for gasless transactions
 
-Usage
+##### Usage
 ```ts
 import { useSessionKeyStore } from "@zknoid/hooks";
 
@@ -241,7 +244,7 @@ const sessionPublicKey = useStore(useSessionKeyStore, (state) => state.getSessio
 const sessionPrivateKey = useStore(useSessionKeyStore, (state) => state.getSessionKey());
 ```
 
-Returns
+##### Returns
 
 ```ts
 interface MatchQueueState {
