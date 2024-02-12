@@ -21,7 +21,7 @@ export default {
     "type": "separator",
     "title": "For developers"
   },
-
+  "game_building": "🧑‍💻 Framework overview",
   "sdk": "📦 SDK",
   "research_grants": "📄 Research, develop grants",
   "-- Tokenomics": {

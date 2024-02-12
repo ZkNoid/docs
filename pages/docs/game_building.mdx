@@ -1,0 +1,256 @@
+import { FileTree } from 'nextra/components'
+import { Link } from 'next/link';
+
+### Building a ZK game
+
+ZkNoid is a modular platform that can be easily extended with custom games. 
+Every game consist of front-end and chain-end part.
+Example game front-end structure can be found here – [apps/web/games](https://github.com/ZkNoid/zknoid/tree/develop/apps/web/games):
+
+<FileTree>
+  <FileTree.Folder name="randzu" defaultOpen>
+    <FileTree.Folder name="components" defaultOpen>
+        <FileTree.File name="GameView.tsx" />
+        <FileTree.File name="RandzuPage.tsx" />
+    </FileTree.Folder>
+    <FileTree.Folder name="stores" defaultOpen>
+        <FileTree.File name="matchQueue.tsx" />
+        <FileTree.File name="sessionKeyStorage.tsx" />
+    </FileTree.Folder>
+    <FileTree.File name="page.tsx" />
+    <FileTree.File name="config.ts" />
+  </FileTree.Folder>
+  <FileTree.Folder name="arkanoid">
+    <FileTree.Folder name="components" defaultOpen>
+        <FileTree.File name="GameView.tsx" />
+        <FileTree.File name="ArkanoidCompetitionsListPage.tsx" />
+        <FileTree.File name="ArkanoidPage.tsx" />
+        <FileTree.File name="NewArkanoidCompetitionPage.tsx" />
+    </FileTree.Folder>
+    <FileTree.Folder name="stores" defaultOpen>
+        <FileTree.File name="arkanoidCompetitions.tsx" />
+        <FileTree.File name="arkanoidLeaderboard.tsx" />
+    </FileTree.Folder>
+    <FileTree.File name="page-competitions-list.tsx" />
+    <FileTree.File name="page-new-competition.tsx" />
+    <FileTree.File name="page.tsx" />
+    <FileTree.File name="config.ts" />
+  </FileTree.Folder>
+</FileTree>
+
+Every game should contain a `config.ts` file where game config is defined:
+
+```ts filename="config.ts"
+export const randzuConfig =
+    createZkNoidGameConfig({
+        id: 'randzu',
+        name: 'Randzu',
+        description: 'Two players take turns placing pieces on the board attempting to create lines of 5 of their own color',
+        image: '/randzu.jpeg',
+        runtimeModules: {
+            RandzuLogic
+        }
+    });
+```
+It defines game meta information and runtime modules used by the game. Game config may be used to create an `AppChainClient` object
+
+Game defines file named `page.tsx` that is integrated by the platform. 
+All the content should be wrapped inside `AppChainClientContext` context provider:
+
+```ts filename="page.tsx"
+"use client";
+
+import { useMemo } from "react";
+import { randzuConfig } from "./config";
+import { getZkNoidGameClient } from "@/lib/createConfig";
+import { AppChainClientContext } from "@/lib/contexts/AppChainClientContext";
+import RandzuPage from "./components/RandzuPage";
+
+export default function Page({
+    params,
+}: {
+    params: { competitionId: string };
+}) {
+    const client = useMemo(() => getZkNoidGameClient(randzuConfig), []);
+    return (
+        <AppChainClientContext.Provider value={client}>
+            <RandzuPage params={{
+                competitionId: params.competitionId
+            }} />
+        </AppChainClientContext.Provider>
+    )
+}
+```
+
+ZkNoid provides infrastructure such as 
+- Wallet connection
+- Dealing with L1 and L2 protokit appchain
+    - Accessing balances
+    - Reading data
+    - Making transactions
+- Storing session keys
+- Competitions support
+- Matchmaking support
+
+Instrstructure can be used by importing hooks or components, using engine contracts
+
+### Contexts:
+#### AppChainClientContext
+
+Can be used to access the game app-chain
+
+Usage 
+
+```ts
+import { AppChainClientContext } from "@zknoid/contexts";
+
+// arkanoidConfig is your game config imported from config.ts
+const client = useContext<
+        ClientAppChain<typeof arkanoidConfig.runtimeModules> | undefined
+    >(AppChainClientContext);
+```
+
+
+### Hooks:
+#### useNetworkStore
+Returns L1 
+
+Usage
+```ts
+import { useNetworkStore } from '@zknoid/hooks';
+
+const network = useNetworkStore();
+```
+
+Returns 
+```ts
+export interface NetworkState {
+  minaNetwork: Network | undefined;
+  setNetwork: (chainId: string) => Promise<void>;
+  address: string | undefined;
+  connected: boolean;
+  protokitClientStarted: boolean;
+  onConnect: (address: string | undefined) => Promise<void>;
+  onProtokitClientStarted: () => void;
+  connectWallet: () => Promise<void>;
+  walletInstalled: () => boolean;
+  pendingL2Transactions: PendingTransaction[];
+  addPendingL2Transaction: (pendingTransaction: PendingTransaction) => void;
+  removePendingL2Transaction: (pendingTransaction: PendingTransaction) => void;
+}
+```
+
+
+#### useProtokitChainStore
+
+Can be use to fetch protokit app-chain block height. 
+Usage
+```ts
+import { useProtokitChainStore } from '@zknoid/hooks';
+
+const chain = useProtokitChainStore();
+```
+
+Returns
+```ts
+interface ChainState {
+  loading: boolean;
+  block?: {
+    height: string;
+  } & ComputedBlockJSON;
+  loadBlock: () => Promise<void>;
+}
+```
+
+
+#### useChainStore
+Can be used to access L1 network info
+Usage
+```ts
+import { useChainStore } from '@zknoid/hooks';
+
+const chain = useChainStore();
+```
+
+Returns 
+```ts
+interface ChainState {
+  loading: boolean;
+  block?: {
+    height: string;
+  } & ComputedBlockJSON;
+  loadBlock: (chainId: string) => Promise<void>;
+}
+```
+
+
+#### useProtokitBalancesStore
+Allows to fetch tokens on-ramped to the app network for the current user
+
+Usage
+```ts
+import { useProtokitBalancesStore } from "@zknoid/hooks";
+
+const balancesStore = useProtokitBalancesStore();
+```
+
+Returns
+```ts
+interface BalancesState {
+  loading: boolean;
+  balances: {
+    // address - balance
+    [key: string]: bigint;
+  };
+  loadBalance: (client: ClientAppChain<typeof DefaultRuntimeModules>, address: string) => Promise<void>;
+}
+```
+
+#### useMinaBridge
+Allows to on-ramp and off-ramp funds to/from protokit app chain.
+
+Usage
+```ts
+import { useMinaBridge } from "@zknoid/hooks";
+
+const bridge = useMinaBridge();
+  ...
+  const startGame = async () => {
+    if (competition!.participationFee > 0) {
+      await bridge(competition!.participationFee);
+    }
+    ...
+  }
+```
+
+Returns 
+
+```ts
+(amount: number) => Promise<void>
+```
+
+
+#### useSessionKeyStore
+Can be used to create sessions for gasless transactions
+
+Usage
+```ts
+import { useSessionKeyStore } from "@zknoid/hooks";
+
+const sessionPublicKey = useStore(useSessionKeyStore, (state) => state.getSessionKey()).toPublicKey();
+const sessionPrivateKey = useStore(useSessionKeyStore, (state) => state.getSessionKey());
+```
+
+Returns
+
+```ts
+interface MatchQueueState {
+    sessionKeyBase58: any;
+    getSessionKey: () => PrivateKey;
+    newSessionKey: () => PrivateKey;
+}
+
+UseBoundStore<Write<StoreApi<MatchQueueState>, StorePersist<MatchQueueState, never>>>
+```
+
+Example game on-chain part can be found in [chain/src/randzu](https://github.com/ZkNoid/zknoid/tree/develop/packages/chain/src/randzu)
