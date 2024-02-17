@@ -28,12 +28,13 @@ code zknoid
 
 Games UI is stored inside `apps/web` folder. There are already UI for arkanoid and randzu games.
 
-#### Creating game interface
+#### Creating game config
 
 Create a `randzu2` directory inside `apps/web` folder. 
-Create file named `config.ts` inside. This file will store game meta information
+Create file named `config.ts`. 
 
 ```ts filename="apps/web/randzu2/config.ts"
+// Base function that is used to create ZkNoid configs
 import { createZkNoidGameConfig } from "@/lib/createConfig";
 
 // In this example we will focus on UI, and will use ready contracts
@@ -53,4 +54,120 @@ export const randzu2Config =
     });
 ```
 
-Implementation is in progress
+This config stores game meta information used to display in store, runtime modules needed for game to interact with on-chain part and game page.
+We passed game page as undefined. Now we need to implement it and pass to the config.
+
+#### Creating components
+
+Now we need to create Next JS components of the game.
+Create folder `components` inside the game folder. Create component file named `RandzuPage.tsx` inside
+
+```ts filename="apps/web/randzu2/components/RandzuPage.tsx"
+'use client'
+
+import { useContext, useEffect, useState } from 'react';
+
+enum GameState {
+  NotStarted,
+  MatchRegistration,
+  Matchmaking,
+  Active,
+  Won,
+  Lost,
+}
+
+export default function RandzuPage({
+  params,
+}: {
+  params: { competitionId: string };
+}) {
+  const [gameState, setGameState] = useState(GameState.NotStarted);
+  const competition = randzuCompetitions.find(
+    (x) => x.id == params.competitionId,
+  );
+  
+  // Protokit AppChain client that allows to fetch data from blockchain or make transactions
+  const client = useContext(AppChainClientContext);
+
+  if (!client) {
+      throw Error('Context app chain client is not set');
+  }
+
+  ...
+
+  return (<></>)
+}
+```
+
+ZkNoid is build around competitions concept. Every game exists in some competitions context.
+Page receives the competition id, sets the game state. Fetches protokit appchain client automatically passed by the framework.
+
+We need a function that will be called when game is launched. Let's call this function `start`.
+This function should check if competition is a paid one. If so, call bridge to on-ramp user tokens to the app network.
+
+
+```ts filename="apps/web/randzu2/components/RandzuPage.tsx"
+import { useMinaBridge } from '@/lib/stores/protokitBalances';
+import { PublicKey } from 'o1js';
+import { useSessionKeyStore } from '@/lib/stores/sessionKeyStorage';
+
+...
+  // Bridge allows to on-ramp tokens to the app network if not enough
+  const bridge = useMinaBridge();
+  // Sessions allow to make game transactions in background without user interruption
+  const sessionPublicKey = useStore(useSessionKeyStore, (state) => state.getSessionKey()).toPublicKey();
+  const sessionPrivateKey = useStore(useSessionKeyStore, (state) => state.getSessionKey());
+  // Manages network and wallet information
+  const networkStore = useNetworkStore();
+
+  // Function that will be called when user wants to start the game
+  const startGame = async () => {
+    // If competition is paid
+    if (competition!.enteringPrice > 0) {
+      // Bridging tokens to network if not enough
+      await bridge(competition?.enteringPrice! * 10 ** 9);
+    }
+
+    // Resolving protokit RandzuLogic runtime module. 
+    // In protokit there are no addresses, modules are resolved using module names
+    const randzuLogic = client.runtime.resolve('RandzuLogic');
+
+    // Make transaction to register in the game queue from protokit client
+    const tx = await client.transaction(
+      PublicKey.fromBase58(networkStore.address!),
+      () => {
+        randzuLogic.register(sessionPublicKey, UInt64.from(Math.round(Date.now() / 1000)));
+      },
+    );
+
+    await tx.sign();
+    await tx.send();
+
+    // Setting state that we're waiting for matchmaking
+    setGameState(GameState.MatchRegistration);
+  };
+
+```
+
+#### Adding page component to the config
+We left page field in the config as `undefined`. Not it's the time to register our page component in the config
+
+```ts filename="apps/web/randzu2/config.ts"
+import { createZkNoidGameConfig } from "@/lib/createConfig";
+import { RandzuLogic } from "zknoid-chain-dev";
+// Imported our new page
+import RandzuPage from "./components/RandzuPage";
+
+export const randzu2Config =
+    createZkNoidGameConfig({
+        id: 'randzu2',
+        name: 'Randzu2',
+        description: 'Two players take turns placing pieces on the board attempting to create lines of 5 of their own color',
+        image: '/randzu.jpeg',
+        runtimeModules: {
+          RandzuLogic
+        },
+        page: RandzuPage // Added our new page to the config
+    });
+```
+
