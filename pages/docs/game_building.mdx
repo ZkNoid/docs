@@ -171,7 +171,7 @@ export const randzu2Config =
     });
 ```
 
-#### Implementing game store
+#### Implementing store
 
 We need to fetch user info from the network to know whether user already in game, what is the current field and so one.
 For data fething we will implement store that will handle and update information once it's changed.
@@ -237,7 +237,7 @@ export const useRandzuMatchQueueStore = create<
         getQueueLength() {
             return this.queueLength;
         },
-        async loadMatchQueue(client: ClientAppChain<typeof randzuConfig.runtimeModules>, blockHeight: number) {
+        async loadMatchQueue(client: ClientAppChain<typeof randzu2Config.runtimeModules>, blockHeight: number) {
             set((state) => {
                 state.loading = true;
             });
@@ -251,7 +251,7 @@ export const useRandzuMatchQueueStore = create<
                 state.loading = false;
             });
         },
-        async loadActiveGame(client: ClientAppChain<typeof randzuConfig.runtimeModules>, blockHeight: number, address: PublicKey) {
+        async loadActiveGame(client: ClientAppChain<typeof randzu2Config.runtimeModules>, blockHeight: number, address: PublicKey) {
             set((state) => {
                 state.loading = true;
             });
@@ -314,3 +314,69 @@ export const useRandzuMatchQueueStore = create<
     })),
 );
 ```
+
+##### Implementing store observer
+Now we need fetch the info from chain and update it once new block is produced
+```ts filename="apps/web/randzu2/store/matchQueue.ts"
+import { useProtokitChainStore } from "@/lib/stores/protokitChain";
+import { useNetworkStore } from "@/lib/stores/network";
+
+export const useObserveRandzuMatchQueue = () => {
+    const chain = useProtokitChainStore();
+    const network = useNetworkStore();
+    const matchQueue = useRandzuMatchQueueStore();
+    const client = useContext<ClientAppChain<typeof randzuConfig.runtimeModules> | undefined>(AppChainClientContext);
+
+    useEffect(() => {
+        // If wallet is not connected we can't know the current user and can't fetch the info
+        if (!network.walletConnected) {
+            return;
+        }
+         
+        if (!client) {
+            throw Error('Context app chain client is not set');
+        }      
+        // Updating information in the store
+        matchQueue.loadMatchQueue(client, parseInt(chain.block?.height ?? "0"));
+        matchQueue.loadActiveGame(client, parseInt(chain.block?.height ?? "0"), PublicKey.fromBase58(network.address!));
+        // Updating on each new block or when wallet is connected
+    }, [chain.block?.height, network.walletConnected]);
+};
+```
+
+#### Using store in page component
+Now we can use the store in the page component. 
+At first we need to register the observer to enable store data fetching and updating.
+And use our store
+
+```ts filename="apps/web/randzu2/components/RandzuPage.tsx"
+import { useObserveRandzuMatchQueue, useRandzuMatchQueueStore } from '@/games/randzu/stores/matchQueue';
+
+...
+    // Enables on-chain data fetching and updating
+    useObserveRandzuMatchQueue();
+    const matchQueue = useRandzuMatchQueueStore();
+```
+
+Now we can update game state based on on-chain info
+
+```ts filename="apps/web/randzu2/components/RandzuPage.tsx"
+
+  useEffect(() => {
+    if (matchQueue.inQueue && !matchQueue.activeGameId) {
+      setGameState(GameState.Matchmaking);
+    } else if (matchQueue.activeGameId) {
+      setGameState(GameState.Active);
+    } else {
+      if (matchQueue.lastGameState == 'win')
+        setGameState(GameState.Won);
+
+      if (matchQueue.lastGameState == 'lost')
+        setGameState(GameState.Lost);
+    }
+
+  }, [matchQueue.activeGameId, matchQueue.inQueue, matchQueue.lastGameState]);
+
+```
+
+
