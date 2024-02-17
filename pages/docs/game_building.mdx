@@ -1,8 +1,8 @@
 ### Reimplementing Randzu game UI with ZkNoid SDK
 
 Using ZkNoid infrastructure thrue the SDK allows to easily bootstrap a game. 
-In this example we will explore the process of Randzu game creation
-ZkGame consists of two parts: ui and on-chain program. 
+In this example we will explore the process of Randzu game creation and try to re-implement the randzu game UI.
+ZkGame consists of two parts: UI and on-chain program. 
 
 #### Get started
 
@@ -171,3 +171,149 @@ export const randzu2Config =
     });
 ```
 
+#### Implementing game store
+
+We need to fetch user info from the network to know whether user already in game, what is the current field and so one.
+For data fething we will implement store that will handle and update information once it's changed.
+
+Here you need to create `stores` directory in the game folder and create file `matchQueue.ts`:
+
+```ts filename="apps/web/randzu2/store/matchQueue.ts"
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
+import { PublicKey, UInt32, UInt64 } from "o1js";
+import { useContext, useEffect } from "react";
+import { useProtokitChainStore } from "../../../lib/stores/protokitChain";
+import { useNetworkStore } from "../../../lib/stores/network";
+import { RoundIdxUser, RandzuField } from "zknoid-chain-dev";
+import AppChainClientContext from "@/lib/contexts/AppChainClientContext";
+import { randzu2Config } from "../config";
+import { ClientAppChain } from "@proto-kit/sdk";
+
+...
+// Here is our state managed by store
+export interface MatchQueueState {
+    // Is user in loading state
+    loading: boolean;
+    // What is players queue length
+    queueLength: number;
+    // Is user in queue
+    inQueue: boolean;
+    // What is current user game id. Zero if user is not in a game
+    activeGameId: bigint;
+    // Current game info if user is in game
+    gameInfo: IGameInfo | undefined;
+    // Saved state after game end
+    lastGameState: 'win' | 'lost' | undefined;
+    // Players queue length
+    getQueueLength: () => number;
+    // Loads match queue. To call from observer. Note: runtime module types are resolved using our config here
+    loadMatchQueue: (client: ClientAppChain<typeof randzu2Config.runtimeModules>, blockHeight: number) => Promise<void>;
+    // Loads active game. To call from observer. Note: runtime module types are resolved using our config here
+    loadActiveGame: (client: ClientAppChain<typeof randzu2Config.runtimeModules>, blockHeight: number, address: PublicKey) => Promise<void>;
+    // Resets saved state after game end
+    resetLastGameState: () => void;
+}
+// Creating the store
+export const useRandzuMatchQueueStore = create<
+    MatchQueueState,
+    [["zustand/immer", never]]
+>(
+    immer((set) => ({
+        // Setting default values
+        loading: Boolean(false),
+        leaderboard: {},
+        queueLength: 0,
+        activeGameId: BigInt(0),
+        inQueue: Boolean(false),
+        gameInfo: undefined as IGameInfo | undefined,
+        lastGameState: undefined as 'win' | 'lost' | undefined,
+        resetLastGameState() {
+            set((state) => {
+                state.lastGameState = undefined;
+                state.gameInfo = undefined;
+            });
+        },
+        getQueueLength() {
+            return this.queueLength;
+        },
+        async loadMatchQueue(client: ClientAppChain<typeof randzuConfig.runtimeModules>, blockHeight: number) {
+            set((state) => {
+                state.loading = true;
+            });
+            // Fetching queue length from chain
+            const queueLength = await client.query.runtime.RandzuLogic.queueLength.get(
+                UInt64.from(blockHeight).div(PENDING_BLOCKS_NUM)
+            );
+
+            set((state) => {
+                state.queueLength = Number(queueLength?.toBigInt() || 0);
+                state.loading = false;
+            });
+        },
+        async loadActiveGame(client: ClientAppChain<typeof randzuConfig.runtimeModules>, blockHeight: number, address: PublicKey) {
+            set((state) => {
+                state.loading = true;
+            });
+            // Fetching active game id from chain
+            const activeGameId = await client.query.runtime.RandzuLogic.activeGameId.get(
+                address
+            );
+            // Fetching in queue state from chain
+            const inQueue = await client.query.runtime.RandzuLogic.queueRegisteredRoundUsers.get(
+                new RoundIdxUser({
+                    roundId: UInt64.from(blockHeight).div(PENDING_BLOCKS_NUM),
+                    userAddress: address
+                })
+            );
+            // If game ended but previous game info is saved in the store
+            if (activeGameId?.equals(UInt64.from(0)).toBoolean() && this.gameInfo?.gameId) {
+                const gameInfo = (await client.query.runtime.RandzuLogic.games.get(UInt64.from(this.gameInfo?.gameId!)))!;
+
+                const field = (gameInfo.field as RandzuField).value.map((x: UInt32[]) => x.map(x => x.toBigint()));
+                // Setting info about results in the ended game
+                set((state) => {
+                    state.lastGameState = gameInfo.winner.equals(address).toBoolean() ? 'win' : 'lost';
+                    state.gameInfo!.field = field;
+                    state.gameInfo!.isCurrentUserMove = false;
+                })
+            }
+            // If user in active game, fetching game info
+            if (activeGameId?.greaterThan(UInt64.from(0)).toBoolean()) {
+                const gameInfo = (await client.query.runtime.RandzuLogic.games.get(activeGameId))!;
+                const currentUserIndex = address.equals(gameInfo.player1 as PublicKey).toBoolean() ? 0 : 1;
+                const player1 = gameInfo.player1 as PublicKey;
+                const player2 = gameInfo.player2 as PublicKey;
+                const field = (gameInfo.field as RandzuField).value.map((x: UInt32[]) => x.map(x => x.toBigint()));
+                set((state) => {
+                    // @ts-ignore
+                    state.gameInfo = {
+                        player1,
+                        player2,
+                        currentMoveUser: gameInfo.currentMoveUser as PublicKey,
+                        field,
+                        currentUserIndex,
+                        isCurrentUserMove: (gameInfo.currentMoveUser as PublicKey).equals(address).toBoolean(),
+                        opponent: currentUserIndex == 1 ? gameInfo.player1: gameInfo.player2,
+                        gameId: activeGameId.toBigInt(),
+                        winner: gameInfo.winner.equals(PublicKey.empty()).not().toBoolean() ? gameInfo.winner : undefined,
+                        winWitness: {
+                            x: 0,
+                            y: 0,
+                            directionX: 0,
+                            directionY: 0
+                        }
+                    }
+                })
+            }
+
+            set((state) => {
+                // @ts-ignore
+                state.activeGameId = activeGameId?.toBigInt() || 0n;
+                state.inQueue = inQueue?.toBoolean();
+                state.loading = false;
+            });
+        },
+    })),
+);
+```
