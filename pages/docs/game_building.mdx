@@ -32,14 +32,14 @@ cd ../
 code zknoid
 ```
 
-Games UI is stored inside `apps/web` folder. There are already UI for arkanoid and randzu games.
+Games UI is stored inside `apps/web/games` folder. There are already UI for arkanoid and randzu games.
 
 #### Creating game config
 
-Create a `randzu2` directory inside `apps/web` folder. 
+Create a `randzu2` directory inside `apps/web/games` folder. 
 Create file named `config.ts`. 
 
-```ts filename="apps/web/randzu2/config.ts"
+```ts filename="apps/web/games/randzu2/config.ts"
 // Base function that is used to create ZkNoid configs
 import { createZkNoidGameConfig } from "@/lib/createConfig";
 
@@ -68,7 +68,7 @@ We passed game page as undefined. Now we need to implement it and pass to the co
 Now we need to create Next JS components of the game.
 Create folder `components` inside the game folder. Create component file named `RandzuPage.tsx` inside
 
-```ts filename="apps/web/randzu2/components/RandzuPage.tsx"
+```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
 'use client'
 
 import { useContext, useEffect, useState } from 'react';
@@ -112,7 +112,7 @@ We need a function that will be called when game is launched. Let's call this fu
 This function should check if competition is a paid one. If so, call bridge to on-ramp user tokens to the app network.
 
 
-```ts filename="apps/web/randzu2/components/RandzuPage.tsx"
+```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
 import { useMinaBridge } from '@/lib/stores/protokitBalances';
 import { PublicKey } from 'o1js';
 import { useSessionKeyStore } from '@/lib/stores/sessionKeyStorage';
@@ -158,7 +158,7 @@ import { useSessionKeyStore } from '@/lib/stores/sessionKeyStorage';
 #### Adding page component to the config
 We left page field in the config as `undefined`. Not it's the time to register our page component in the config
 
-```ts filename="apps/web/randzu2/config.ts"
+```ts filename="apps/web/games/randzu2/config.ts"
 import { createZkNoidGameConfig } from "@/lib/createConfig";
 import { RandzuLogic } from "zknoid-chain-dev";
 // Imported our new page
@@ -184,7 +184,7 @@ For data fething we will implement store that will handle and update information
 
 Here you need to create `stores` directory in the game folder and create file `matchQueue.ts`:
 
-```ts filename="apps/web/randzu2/store/matchQueue.ts"
+```ts filename="apps/web/games/randzu2/store/matchQueue.ts"
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { PublicKey, UInt32, UInt64 } from "o1js";
@@ -323,7 +323,7 @@ export const useRandzuMatchQueueStore = create<
 
 ##### Implementing store observer
 Now we need fetch the info from chain and update it once new block is produced
-```ts filename="apps/web/randzu2/store/matchQueue.ts"
+```ts filename="apps/web/games/randzu2/store/matchQueue.ts"
 import { useProtokitChainStore } from "@/lib/stores/protokitChain";
 import { useNetworkStore } from "@/lib/stores/network";
 
@@ -355,7 +355,7 @@ Now we can use the store in the page component.
 At first we need to register the observer to enable store data fetching and updating.
 And use our store
 
-```ts filename="apps/web/randzu2/components/RandzuPage.tsx"
+```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
 import { useObserveRandzuMatchQueue, useRandzuMatchQueueStore } from '@/games/randzu/stores/matchQueue';
 
 ...
@@ -366,7 +366,7 @@ import { useObserveRandzuMatchQueue, useRandzuMatchQueueStore } from '@/games/ra
 
 Now we can update game state based on on-chain info
 
-```ts filename="apps/web/randzu2/components/RandzuPage.tsx"
+```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
 
   useEffect(() => {
     if (matchQueue.inQueue && !matchQueue.activeGameId) {
