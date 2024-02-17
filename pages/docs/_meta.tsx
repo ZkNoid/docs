@@ -21,8 +21,8 @@ export default {
     "type": "separator",
     "title": "For developers"
   },
-  "game_building": "🧑‍💻 Next JS SDK",
   "sdk": "📦 SDK",
+  "game_building": "🧑‍💻 Building a simple game UI",
   "research_grants": "📄 Research, develop grants",
   "-- Tokenomics": {
     "type": "separator",
