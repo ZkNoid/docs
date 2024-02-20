@@ -18,7 +18,9 @@ To create a game you need to clone the [ZkNoid project repository](https://githu
 git clone https://github.com/ZkNoid/zknoid
 cd zknoid
  
-# ensures you have the right node js version
+# Ensures you have the right node js version
+# !important! Without this step the app may not work!
+# If nvm is not installed please install it 
 nvm use
 pnpm install
 ```
@@ -110,7 +112,7 @@ Page receives the competition id, sets the game state. Fetches protokit appchain
 
 We need a function that will be called when game is launched. Let's call this function `start`.
 This function should check if competition is a paid one. If so, call bridge to on-ramp user tokens to the app network.
-
+Then it executed `register` transaction that adds user to the match queue and registers his session keypair
 
 ```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
 import { useMinaBridge } from '@/lib/stores/protokitBalances';
@@ -138,7 +140,8 @@ import { useSessionKeyStore } from '@/lib/stores/sessionKeyStorage';
     // In protokit there are no addresses, modules are resolved using module names
     const randzuLogic = client.runtime.resolve('RandzuLogic');
 
-    // Make transaction to register in the game queue from protokit client
+    // Make transaction to register in the game queue from protokit client.
+    // Note, we register our session keypair in this call
     const tx = await client.transaction(
       PublicKey.fromBase58(networkStore.address!),
       () => {
@@ -382,7 +385,166 @@ Now we can update game state based on on-chain info
     }
 
   }, [matchQueue.activeGameId, matchQueue.inQueue, matchQueue.lastGameState]);
-
 ```
 
 
+#### Rendering game field based on store data
+
+We have our game state and can drow the actual game field
+
+```ts filename="apps/web/games/randzu2/components/GameView.tsx"
+
+  import { IGameInfo } from '@/games/randzu/stores/matchQueue';
+
+  interface IGameViewProps {
+    // Passing actual game state
+    gameInfo: IGameInfo | undefined;
+    // Callback function should be executed when cell is clicked
+    onCellClicked: (x: number, y: number) => void;
+    // Element that was chosen for move but not yet set in transaction position
+    loadingElement: {x: number, y: number} | undefined;
+    // Is transaction execution state
+    loading: boolean;
+  }
+
+  export const GameView = (props: IGameViewProps) => {
+    return (
+      <div className={`grid grid-cols-15 gap-1 ${
+          // If current user move, highlight the field
+          props.gameInfo?.isCurrentUserMove && !props.gameInfo?.winner && 'border-green-500 border-4 border-dashed'
+        } bg-gray-300 p-2`}>
+        {[...Array(15).keys()].map(i => (
+          [...Array(15).keys()].map(j =>
+            <div
+              className={`
+                bg-white ${
+                  // If current user move and we're not awaiting transaction, hovering cells when pointner is on
+                  props.gameInfo?.isCurrentUserMove && !props.loading && 'hover:bg-gray-200'
+                } w-7 h-7 
+                bg-[length:30px_30px] bg-no-repeat bg-center p-5 
+                ${
+                  // If current user move and cell is empty, show player's mark on hover
+                  props.gameInfo?.isCurrentUserMove && 
+                  props.gameInfo?.field?.[j]?.[i] == 0 && 
+                  (!props.loading && (props.gameInfo?.currentUserIndex == 0 ? 
+                    "hover:bg-[url('/ball_red.png')]" : 
+                    "hover:bg-[url('/ball_blue.png')]"))
+                }
+                ${
+                  // Showing correct marks in cells
+                  props.gameInfo?.field?.[j]?.[i] == 1 && "bg-[url('/ball_red.png')]"
+                }
+                ${
+                  // Showing correct marks in cells
+                  props.gameInfo?.field?.[j]?.[i] == 2 && "bg-[url('/ball_blue.png')]"
+                }
+                ${
+                  // If user placed an element that is not yet confirmed in transaction, show it
+                  props.loadingElement && props.loadingElement.x == i && props.loadingElement.y == j && (
+                  props.gameInfo?.currentUserIndex == 0 ? 
+                    "bg-[url('/ball_red.png')] bg-opacity-50" : 
+                    "bg-[url('/ball_blue.png')] bg-opacity-50"
+                )}
+              `}
+              style={{ imageRendering: 'pixelated' }}
+              id={`${i}_${j}`}
+              onClick={() => props.onCellClicked(i, j)}  // Calling callback on cell clicked
+            >
+            </div>
+          )
+        )
+        )}
+      </div>
+    );
+  };
+```
+
+#### Showing game field and round queue
+
+We have all we need to show user he's game in RandzuPage
+
+```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
+  ...
+  // Showing game field
+  <GameView
+    gameInfo={matchQueue.gameInfo}
+    onCellClicked={onCellClicked}
+    loadingElement={loadingElement}
+    loading={loading}
+  />
+  // Reading and showing match queue length from store
+  <div>Players in queue: {matchQueue.getQueueLength()}</div>
+  <div className="grow"></div>
+  <div className="flex flex-col gap-10">
+    <div>
+      Active competitions:
+      <div className="flex flex-col">
+        // Displaying game competitions
+        {randzuCompetitions.map((competition) => (
+          <Link
+            href={`/games/randzu/${competition.id}`}
+            key={competition.id}
+          >
+            {competition.name} – {competition.prizeFund} 🪙
+          </Link>
+        ))}
+      </div>
+    </div>
+  </div>
+```
+
+#### Making game transactions
+
+When cell is clicked we need to update the on-chain state. This transaction will be executed in `onCellClicked` function.
+We don't want to interrupt user for transaction confirmation so we'll use session key for transaction signing.
+Transaction `makeMove` is executed here updating game state and ending the game if win witness proves his win
+
+```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
+  const onCellClicked = async (x: number, y: number) => {
+    // If not current user or cell is not empty, do nothing
+    if (!matchQueue.gameInfo?.isCurrentUserMove) return;
+    if (matchQueue.gameInfo.field[x][y] != 0) return;
+
+    const currentUserId = matchQueue.gameInfo.currentUserIndex + 1;
+
+    // Preparing updated field
+    const updatedField = matchQueue.gameInfo.field.map(x => [...x]);
+    updatedField[y][x] = matchQueue.gameInfo.currentUserIndex + 1;
+
+    const randzuLogic = client.runtime.resolve('RandzuLogic');
+
+    const updatedRandzuField = RandzuField.from(updatedField);
+
+    // Preparing win witness that is checked in circuit and ends game if correct
+    const winWitness1 = updatedRandzuField.checkWin(currentUserId);
+
+    // Making makeMove transaction from session keypair with updated field and win witness
+    const tx = await client.transaction(
+      sessionPrivateKey.toPublicKey(),
+      () => {
+        randzuLogic.makeMove(
+          UInt64.from(matchQueue.gameInfo!.gameId), 
+          updatedRandzuField, 
+          winWitness1 ?? new WinWitness(
+            {
+              x: UInt32.from(0),
+              y: UInt32.from(0),
+              directionX: Int64.from(0),
+              directionY: Int64.from(0),
+            }
+          )
+        );
+      },
+    );
+
+    setLoading(true);
+    setLoadingElement({
+      x, y
+    });
+
+    // Extracting transaction, signing with session keypair and putting back
+    tx.transaction = tx.transaction?.sign(sessionPrivateKey);
+    // Sending transaction to the network
+    await tx.send();
+  }
+```
