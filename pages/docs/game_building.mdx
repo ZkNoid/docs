@@ -70,7 +70,7 @@ We passed game page as undefined. Now we need to implement it and pass to the co
 Now we need to create Next JS components of the game.
 Create folder `components` inside the game folder. Create component file named `RandzuPage.tsx` inside
 
-```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
+```tsx filename="apps/web/games/randzu2/components/RandzuPage.tsx"
 'use client'
 
 import { useContext, useEffect, useState } from 'react';
@@ -114,7 +114,7 @@ We need a function that will be called when game is launched. Let's call this fu
 This function should check if competition is a paid one. If so, call bridge to on-ramp user tokens to the app network.
 Then it executed `register` transaction that adds user to the match queue and registers his session keypair
 
-```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
+```tsx filename="apps/web/games/randzu2/components/RandzuPage.tsx"
 import { useMinaBridge } from '@/lib/stores/protokitBalances';
 import { PublicKey } from 'o1js';
 import { useSessionKeyStore } from '@/lib/stores/sessionKeyStorage';
@@ -326,7 +326,7 @@ export const useRandzuMatchQueueStore = create<
 
 ##### Implementing store observer
 Now we need fetch the info from chain and update it once new block is produced
-```ts filename="apps/web/games/randzu2/store/matchQueue.ts"
+```tsx filename="apps/web/games/randzu2/store/matchQueue.ts"
 import { useProtokitChainStore } from "@/lib/stores/protokitChain";
 import { useNetworkStore } from "@/lib/stores/network";
 
@@ -358,7 +358,7 @@ Now we can use the store in the page component.
 At first we need to register the observer to enable store data fetching and updating.
 And use our store
 
-```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
+```tsx filename="apps/web/games/randzu2/components/RandzuPage.tsx"
 import { useObserveRandzuMatchQueue, useRandzuMatchQueueStore } from '@/games/randzu/stores/matchQueue';
 
 ...
@@ -369,7 +369,7 @@ import { useObserveRandzuMatchQueue, useRandzuMatchQueueStore } from '@/games/ra
 
 Now we can update game state based on on-chain info
 
-```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
+```tsx filename="apps/web/games/randzu2/components/RandzuPage.tsx"
 
   useEffect(() => {
     if (matchQueue.inQueue && !matchQueue.activeGameId) {
@@ -392,8 +392,7 @@ Now we can update game state based on on-chain info
 
 We have our game state and can drow the actual game field
 
-```ts filename="apps/web/games/randzu2/components/GameView.tsx"
-
+```tsx filename="apps/web/games/randzu2/components/GameView.tsx"
   import { IGameInfo } from '@/games/randzu/stores/matchQueue';
 
   interface IGameViewProps {
@@ -463,7 +462,7 @@ We have our game state and can drow the actual game field
 
 We have all we need to show user he's game in RandzuPage
 
-```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
+```tsx filename="apps/web/games/randzu2/components/RandzuPage.tsx"
   ...
   // Showing game field
   <GameView
@@ -499,7 +498,7 @@ When cell is clicked we need to update the on-chain state. This transaction will
 We don't want to interrupt user for transaction confirmation so we'll use session key for transaction signing.
 Transaction `makeMove` is executed here updating game state and ending the game if win witness proves his win
 
-```ts filename="apps/web/games/randzu2/components/RandzuPage.tsx"
+```tsx filename="apps/web/games/randzu2/components/RandzuPage.tsx"
   const onCellClicked = async (x: number, y: number) => {
     // If not current user or cell is not empty, do nothing
     if (!matchQueue.gameInfo?.isCurrentUserMove) return;
