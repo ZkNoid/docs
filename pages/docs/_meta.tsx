@@ -17,6 +17,9 @@ export default {
   "randzu_details": {
     "title": "🎴 Randzu game",
   },
+  "thimblerig_details": {
+    "title": "🐚 Thimblerig game",
+  },
   "-- For developers": {
     "type": "separator",
     "title": "For developers"
