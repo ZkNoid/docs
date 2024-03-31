@@ -26,8 +26,8 @@ export default {
     },
     sdk: '📦 SDK',
     game_building: '🧑‍💻 Building a simple game UI',
-    card_sdk: 'SDK for cards',
-    simple_card_game: 'Building simple card game',
+    card_sdk: '♦️ SDK for cards',
+    simple_card_game: '🧑‍💻 Building simple card game',
     research_grants: '📄 Research, develop grants',
     '-- Tokenomics': {
         type: 'separator',
