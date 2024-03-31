@@ -1,0 +1,53 @@
+# SDK for cards
+
+| ! Under development |
+| ------------------- |
+
+## Interfaces
+
+```ts
+export interface ICard<EC> {
+    getIndex(): UInt64;
+    toEncryptedCard(): EC;
+}
+```
+
+```ts
+export interface IEncrypedCard<C> {
+    toCard(): C;
+    add(ec: ThisType<this>): ThisType<this>;
+    addDecryption(decPart: Group): void;
+    numOfEncryption: UInt64;
+}
+```
+
+For card game you need to define Card, EncryptedCard and EncryptedDeck structures.
+We have a base classes for you
+
+```ts
+toEncryptedCardHelper;
+
+EncryptedCardBase;
+
+EncryptedDeckBase;
+```
+
+Also we have some predefined structures for the most popular games
+Poker:
+
+```ts
+class PokerCard
+class PokerEncryptedCard
+class PokerEncryptedDeck
+class ShuffleProofPublicInput
+class ShuffleProofPublicOutput
+function initialEnctyptedPokerDeck
+function shuffle
+class PokerShuffleApp
+class PokerShuffleProof
+class DecryptProofPublicInput
+class DecryptProofPublicOutput
+function proveDecrypt
+class Decrypt
+class PokerDecryptProof
+```
