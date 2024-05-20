@@ -230,13 +230,14 @@ import { useMinaBridge } from "@zknoid/hooks";
 
 const bridge = useMinaBridge();
   ...
-  const startGame = async () => {
-    if (competition!.participationFee > 0) {
-      await bridge(competition!.participationFee);
-    }
-    ...
-  }
+const createCompetition = async () => {
+  const gameHub = client.runtime.resolve('ArkanoidGameHub');
+  if (await bridge(BigInt(funding) * 10n ** 9n))
+    throw Error('Not enough funds');
+  ...
+}
 ```
+[NewArkanoidCompetitionPage.tsx#L181](https://github.com/ZkNoid/zknoid/blob/561952b229bd589e5522d1f155dc747f43d9b981/apps/web/games/arkanoid/components/NewArkanoidCompetitionPage.tsx#L181)
 
 ##### Returns 
 
@@ -268,6 +269,37 @@ interface MatchQueueState {
 UseBoundStore<Write<StoreApi<MatchQueueState>, StorePersist<MatchQueueState, never>>>
 ```
 
+
+##### Usage
+```ts
+const sessionPrivateKey = useStore(useSessionKeyStore, (state) =>
+  state.getSessionKey()
+);
+...
+  const createNewLobby = async (
+    name: string,
+    participationFee: number,
+    privateLobby: boolean,
+    accessKey: number
+  ) => {
+    const lobbyManager = await client.runtime.resolve(params.contractName);
+
+    const tx = await client.transaction(
+      PublicKey.fromBase58(networkStore.address!),
+      async () => {
+        lobbyManager.createLobby(
+          CircuitString.fromString(name),
+          ProtoUInt64.from(participationFee).mul(10 ** 9),
+          Bool(privateLobby),
+          sessionPrivateKey.toPublicKey(),
+          Field.from(accessKey)
+        );
+      }
+    );
+  }
+```
+[LobbyPage.tsx#L189](https://github.com/ZkNoid/zknoid/blob/develop/apps/web/components/framework/Lobby/LobbyPage.tsx#L189)
+
 ### On-chain ZK game part
 
 #### SDK contracts
@@ -286,6 +318,12 @@ Allows to integrate and manage free and paid competitions in the game. For compe
 Allows to integrate players queue, opponent finding that makes possible PvP games
 - Engine contract: [engine/MatchMaker.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/engine/MatchMaker.ts)
 - Usage example: [randzu/RandzuLogic.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/randzu/RandzuLogic.ts)
+
+
+##### Lobby manager
+Allows to create custom lobby rooms e.g. to play with friends
+- Engine contract: [engine/LobbyManager.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/engine/LobbyManager.ts)
+- Usage example: [ThimblerigLogic.ts#L89](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/thimblerig/ThimblerigLogic.ts#L89)
 
 
 ##### Pseudorandomness support
