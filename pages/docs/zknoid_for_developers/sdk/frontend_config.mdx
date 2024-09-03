@@ -1,0 +1,105 @@
+import { FileTree } from 'nextra/components'
+import { Tabs } from 'nextra/components'
+
+
+# Frontend part
+
+Example game front-end structure can be found here – [apps/web/games](https://github.com/ZkNoid/zknoid/tree/develop/apps/web/games):
+
+<FileTree>
+  <FileTree.Folder name="randzu" defaultOpen>
+    <FileTree.Folder name="components" defaultOpen>
+        <FileTree.File name="GameView.tsx" />
+        <FileTree.File name="RandzuPage.tsx" />
+    </FileTree.Folder>
+    <FileTree.Folder name="stores" defaultOpen>
+        <FileTree.File name="matchQueue.tsx" />
+        <FileTree.File name="sessionKeyStorage.tsx" />
+    </FileTree.Folder>
+    <FileTree.File name="config.ts" />
+  </FileTree.Folder>
+  <FileTree.Folder name="arkanoid">
+    <FileTree.Folder name="components" defaultOpen>
+        <FileTree.File name="GameView.tsx" />
+        <FileTree.File name="ArkanoidCompetitionsListPage.tsx" />
+        <FileTree.File name="ArkanoidPage.tsx" />
+        <FileTree.File name="NewArkanoidCompetitionPage.tsx" />
+    </FileTree.Folder>
+    <FileTree.Folder name="stores" defaultOpen>
+        <FileTree.File name="arkanoidCompetitions.tsx" />
+        <FileTree.File name="arkanoidLeaderboard.tsx" />
+    </FileTree.Folder>
+    <FileTree.File name="config.ts" />
+  </FileTree.Folder>
+</FileTree>
+
+Every game should include a `config.ts` file where game config is defined:
+<Tabs items={['Randzu game', 'Arkanoid game']}>
+<Tabs.Tab>
+```ts filename="config.ts"
+import { createZkNoidGameConfig } from "@/lib/createConfig";
+import { RandzuLogic } from "zknoid-chain-dev";
+import RandzuPage from "./components/RandzuPage";
+
+export const randzuConfig =
+    createZkNoidGameConfig({
+        id: 'randzu',
+        name: 'Randzu',
+        description: 'Two players take turns placing pieces on the board attempting to create lines of 5 of their own color',
+        image: '/randzu.jpeg',
+        runtimeModules: {
+            RandzuLogic
+        },
+        page: RandzuPage,
+    });
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```ts filename="config.ts"
+import { createZkNoidGameConfig } from "@/lib/createConfig";
+import { ArkanoidGameHub, Balances } from "zknoid-chain-dev";
+import ArkanoidPage from "./components/ArkanoidPage";
+import NewArkanoidCompetitionPage from "./components/NewArkanoidCompetitionPage";
+import ArkanoidCompetitionsListPage from "./components/ArkanoidCompetitionsListPage";
+
+export const arkanoidConfig =
+    createZkNoidGameConfig({
+        id: 'arkanoid',
+        name: 'Arkanoid',
+        description: 'Old but gold game. Beat all the bricks and protect the ball from falling',
+        image: '/Arkanoid.png',
+        runtimeModules: {
+            ArkanoidGameHub,
+            Balances,
+        },
+        page: ArkanoidPage,
+        pageCompetitionsList: ArkanoidCompetitionsListPage,
+        pageNewCompetition: NewArkanoidCompetitionPage
+    });
+```
+</Tabs.Tab>
+</Tabs>
+
+
+It defines game meta information, runtime modules used by the game and game page components. 
+Game config can be used to create an `AppChainClient` object
+
+ZkNoid provides infrastructure such as 
+- Wallet connection
+- Dealing with L1 and L2 protokit appchain
+    - Accessing balances
+    - Bridging tokens
+    - Reading data
+    - Making transactions
+- Storing session keys
+- Onchain part
+    - Competitions support
+    - Matchmaking support
+    - Collisions calculation
+    - Pseudorandomness support
+    - Commit-reveal scheme
+    - Noises e.g. Perlin for maps generation
+    - Recursive proofs calculation support on front-end
+
+
+

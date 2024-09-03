@@ -1,0 +1,20 @@
+### Contexts
+#### AppChainClientContext
+
+Can be used to access the game app-chain
+
+##### Usage 
+
+```ts
+import { AppChainClientContext } from "@zknoid/contexts";
+
+// arkanoidConfig is your game config imported from config.ts
+const client = useContext<
+        ClientAppChain<typeof arkanoidConfig.runtimeModules> | undefined
+    >(AppChainClientContext);
+```
+
+##### Returns 
+```ts
+ClientAppChain<any>
+```

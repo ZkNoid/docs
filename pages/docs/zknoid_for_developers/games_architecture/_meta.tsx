@@ -1,5 +1,6 @@
 export default {
   arkanoid: {},
-  randzu_checkers_game: {},
+  randzu_game: {},
+  checkers_game: {},
   thimblerig: {},
 };

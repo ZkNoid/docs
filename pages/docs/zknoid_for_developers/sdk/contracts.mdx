@@ -1,0 +1,39 @@
+# Contracts part
+
+#### SDK contracts
+SDK includes a set of _engine_ smartcontracts that can be inherited to enable specific features.<br/>
+Engine contracts cover the core ZK gaming concepts. Contracts integration is the most flexible way of integration
+allowing to implement advanced provable games logic while inheriting useful platform features
+
+
+##### Competitions and leaderboard system
+Allows to integrate and manage free and paid competitions in the game. For competitions leaderboard is created
+- Engine contract: [engine/GameHub.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/engine/GameHub.ts)
+- Usage example: [arkanoid/ArkanoidGameHub.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/arkanoid/ArkanoidGameHub.ts)
+
+
+##### Matchmaking system
+Allows to integrate players queue, opponent finding that makes possible PvP games
+- Engine contract: [engine/MatchMaker.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/engine/MatchMaker.ts)
+- Usage example: [randzu/RandzuLogic.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/randzu/RandzuLogic.ts)
+
+
+##### Lobby manager
+Allows to create custom lobby rooms e.g. to play with friends
+- Engine contract: [engine/LobbyManager.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/engine/LobbyManager.ts)
+- Usage example: [ThimblerigLogic.ts#L89](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/thimblerig/ThimblerigLogic.ts#L89)
+
+
+##### Pseudorandomness support
+Allows to integrate players queue, opponent finding that makes possible PvP games
+- Engine contract: [engine/Random.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/engine/Random.ts)
+- Usage example: [arkanoid/GameContext.ts#L497](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/arkanoid/GameContext.ts#L497)
+
+
+##### Proof of shuffle
+_To be announced_
+
+
+### On-chain games parts examples
+
+Example game on-chain part can be found in [chain/src/randzu](https://github.com/ZkNoid/zknoid/tree/develop/packages/chain/src/randzu) and [chain/src/arkanoid](https://github.com/ZkNoid/zknoid/tree/develop/packages/chain/src/arkanoid)
