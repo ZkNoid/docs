@@ -1,154 +1,136 @@
 ---
-title: 'Introduction'
+title: 'ZkNoid Overview'
 description: 'Explore ZK games with ZkNoid'
 ---
 
 import Image from 'next/image';
 import { Callout } from "nextra/components";
 
-## Overview
-<Image src={'/DocsBlueSnake.svg'} alt='logo' width={200} height={200} style={{paddingTop: '10px'}} ></Image>
+## ZkNoid overview
+<Image src={'/Docs-cover.png'} alt='logo' width={1500} height={500} style={{paddingTop: '10px'}} ></Image>
 
-<a href={"https://zknoid.io/"}>ZkNoid</a> is a gaming platform where all the game interactions are reproducible in ZK circuit 
-and can prove the correct gaming process without revealing the player strategy
+Zero knowledge proof technologies are widely known and they are becoming an integral part of the products we use.
+And that is for a good reason. They're bringing an absolutely new dimensions of the space of making trustless systems. 
+Don’t believe it, prove it!
 
-This allows competitions to be held without cheating or bots possibility. 
-Fair leaderboards, winning real valuables for gaming skills – this is all about ZkNoid project
+<a href={"https://zknoid.io/"}>ZkNoid</a> project is a home for provable gaming.
+On the platform you can try yourself the cutting edge games utilizing Zero-Knowledge proofs or build one using the provided infrastructure
 
+### Benefits
+Explore the world of fair gaming powered by cryptography. 
+Here are the some benefits you can try
 
-## How it works
-### Arkanoid game
+**🙈 Information hiding.** Imagine a battle where player can attack an opponent without revealing his hero’s skills. Zero knowledge proofs can prove literally everything while preserving the next level of data privacy control
 
-#### Rules
+**🤝 Transparency and Trustworthiness.** Provable games allow players to independently verify the fairness of any outcome. This transparency helps to build trust among players, as they know that the game cannot be rigged.
 
-In Ankanoid, your objective is to break all the bricks on the screen using a bouncing ball and a platform. 
-You can control the game by using the left and right arrow keys on your keyboard to move the platform. 
-You need to bounce the ball and prevent it from falling off the bottom of the screen.
+**📜 Immutable Records**. Using blockchain technology, game outcomes and proof verifications are recorded in an immutable ledger, ensuring that none of the parties involved can alter the results afterwards.
 
-#### Implementation
-Game process is divided into ticks - N times per second user input like arrow pressing is processed by ZK circuit.
-The whole game result is clearly defined by the user input. Cart has acceleration that affects ball when touching.
-As displayed game is synchronized with ZK circuit that's generated recursively during the game the final proof verifies the fairness of the whole game
+💸 **Low fees**. Games on ZkNoid platform require to verify not the game logic execution BUT the cryptographic PROOF of the game logic execution. Block creators spend less effort on execution making the games playing cheaper
 
-<video width="400px" height="400px" autoPlay muted loop style={{paddingTop: '10px'}}>
-  <source src={'/zknoid_gameplay_enc.mp4'} type="video/mp4" />
-    Your browser does not support the video tag.
-</video>
+🥞 **High scalability**. Cryptography allows to connect different ZK native networks using proofs. Games can launch their own appchain solutions like protokit or use Zeko. Matchmaking can be moved to appchain to be free for players. Assets from Zeko network may be used in game
 
-
-#### Technologies
-
-Project leverages `Mina Protocol`'s unique zero knowledge technology. 
-Smart contracts powered by ZK recursively accumulate the proof that is validated in Mina network and only fair players are recoreded in leaderboard
-
-Debug mode shows frontend and contracts state synchronization. Read more about verification [here](/docs/arkanoid_details/game_verification)
-
-### Randzu game
-
-A multiplayer game that is similar to tic-tac-toe. 
-Leverages power of <a href="https://protokit.dev/">Protokit</a> to enable multiplayer, gasless and fast transactions.
-
-#### Matchmaking
-
-Matchmaking allows opponent to find each other and start game once opponent is found
-
-<video width="600px" height="600px" autoPlay muted loop style={{paddingTop: '10px'}}>
-  <source src={'/randzu_multiplayer_enc.mp4'} type="video/mp4" />
-    Your browser does not support the video tag.
-</video>
+ZkNoid project aims to on-ramp hundreds of projects to Zk-Proofs and grow new ZK-native games. Offering the required layers for easy integration of provable game mechanics in an user-friendly way, ZkNoid acts as the first publisher for games with zero knowledge support
+ZkNoid project aims to on-ramp hundreds of projects to Zk-Proofs and grow new ZK-native games.
+Offering the required layers for easy and user-friendly integration of provable game mechanics, 
+ZkNoid acts as the first publisher for games with zero knowledge support
 
 
-#### Rules
+## Quick navigation
+### For players
 
-Randzu is a game played on a 15x15 grid, similar to tic-tac-toe. 
-Two players take turns placing their mark, using balls of different colors. 
-The goal is to get five of your marks in a row, either horizontally, vertically or diagonally.
+New to the Zero-Knowledge gaming world? Here is our selections of games you could try
+- **Lottery game.** Try your luck in a provably fair environment – [game link](https://app.zknoid.io/games/lottery/global)
+- **Tileville game**. Build your city using fields – [game link](https://www.tileville.xyz/)
+- **Randzu game**. Play a tic-tac-toe game on a large field with random opponent – [game link](https://app.zknoid.io/games/randzu/global)
 
-#### Implementation
-
-If background session is not enabled, each move requires a signature
-
-<video width="600px" height="600px" autoPlay muted loop style={{paddingTop: '10px'}}>
-  <source src={'/randzu_gameplay_short_enc.mp4'} type="video/mp4" />
-    Your browser does not support the video tag.
-</video>
-
-Player can turn on background sessions. 
-In this case a temporal keypair is created on front-end that signs transactions without user interruption.
-This makes game UX just like in Web2 games. [Learn more about background sessions](https://zknoid.medium.com/how-protokit-can-revolutionize-on-chain-gaming-how-to-cook-it-to-implement-a-multiplayer-game-955dbb2442ac)
-
-
-## Benefits
-
-ZkNoid offers benefits for different type of users
-
-__Gamers, speedrunners__ receive souvenir NFT for being in leaderboard on the fair place amoung other fair players
-
-
-__High skilled players, enjoyers__ monetize your skills or game luck. Pay for playing in a competition and receive payout based on your leaderboard place
-
-
-__Projects__ run competitions with private leaderboard among users with reward based on skills and spent time to keep users interested. 
-
-
-Learn more about ZK gaming in [our Medium articles](https://zknoid.medium.com/ )
-
-
-## Project state
-
-Project is actively developing. <br />
-Demo app in alpha version based on deployed Protokit version can be accessed here – https://app.zknoid.io/ <br />
-Protokit network is deployed to https://protokit.zknoid.io/graphql
-
-
-App also can be launched locally using
-
-```bash
-git clone https://github.com/ZkNoid/zknoid
-cd zknoid
-
-# ensures you have the right node js version
-nvm use
-pnpm install
-```
-
-### Games implemented
-
-__Arkanoid game__: recursive proofs, game verification, cart acceleration that affects ball on collision, leaderboard, competitions creation and funding
-
-__Randzu game__: multiplayer, matchmaking, background gasless sessions, paid competitions, game verification. 
-
-<Callout emoji="💡">
-  You can try Randzu game by using two browsers e.g. Chrome and Firefox or by inviting a friend to play with you in [production build](https://app.zknoid.io/games/randzu/global)
+<Callout>
+  Ready to dive into the development of next-gen games? Read more about SDK and it’s concepts in the [docs](docs)<br/>
 </Callout>
 
-
-## For developers
-
-ZkNoid provides SDK allowing developers to bootstrap their games using ready infrastructure and integrate them to the project economy. 
-Framework presents both on-chain and off-chain reusable parts. Such as
-- Funds bridging and unbridging to the game network
-- Competitions integration
-- Matchmaking, multiplayer support
-- Background transactions using session keys to not interrupt user for transactions confirmation
-- Pseudorandomness, noises
-- Collisions calculation
-- Recursive proofs calculation support on front-end
-
-Read more about SDK and custom game implementation in the [developer's section of the docs](/docs/sdk)
-
-## Social features
-
-<Callout type="info" emoji="ℹ️">
-  Social features are currently in progress
+<Callout>
+  Learn more about game rules and how to play in [docs for players](https://www.notion.so/ZkNoid-overview-1d035c2662124c6391e25613fc6cc884?pvs=21)
 </Callout>
 
-ZkNoid brings social moment to the gaming that is impemented as following features
+### For developers
 
-- Friends list. User has it's own friends list and can send or approve / declain friend requests
-- Chats. Competitions have their chats where players can communicate, find friends or send in-game tokens.
-- Micropayments. Users can send messages with tokens to each other like to wish happy birthday
+- **Docs & SDK.** Ready to dive into the development of next-gen games? Read more about SDK and it’s concepts in the [docs](https://www.notion.so/1d035c2662124c6391e25613fc6cc884?pvs=25)
+- **Articles.** You can find a lot of guides and articles in our [blog](https://medium.com/@zknoid). A short list of useful guides:
+  [Protokit tips & tricks](https://zknoid.medium.com/protokit-tips-tricks-our-experience-bonus-part-a7c6d04c5bfc), [Thimblerig game architecture](https://zknoid.medium.com/thimblerig-game-architecture-commit-reveal-scheme-a26ae8db8aa2)
+- **Videos.** Check out our coding guides on [youtube](https://www.youtube.com/@ZkNoid)
 
-To protect chats from spam, only users with certain in-game balance are eligible to use chats and send friend requests
-If user tries to spam or scam other players, players can vote to soft-ban user from social features or ban completely. 
-These complaints are verified by administrator
+### For games
+
+Want to integrate ZkNoid infrastructure, make your game modern and start using the amazing contemporary crypto benefits? 
+Read our [integration guide](https://www.notion.so/ZkNoid-overview-1d035c2662124c6391e25613fc6cc884?pvs=21). We’ll provide all the required support, just write us to integration@zknoid.io
+
+
+### For investors
+
+- Pitch deck & whitepaper
+
+Explore our [pitchdeck](https://www.notion.so/ZkNoid-overview-1d035c2662124c6391e25613fc6cc884?pvs=21) and [whitepaper](https://www.notion.so/ZkNoid-overview-1d035c2662124c6391e25613fc6cc884?pvs=21) explaining why should ZK proofs take over the gaming industry and why ZkNoid can become the driving force behind these innovations
+
+- Tokenomics
+
+Our token is native to the ZK blockchains. Will be launched on Mina Protocol with an airdrop and a game for initial distribution in Q1 2025. Check out [tokenomics](https://docs.zknoid.io/docs/tokenomics)
+
+- Revenue model
+
+ZkNoid builds an ecosystem of Zk Games with internal fees for integrated games, assets buying. Read more about project [revenue model](https://docs.zknoid.io/docs/business_model)
+
+## ZkNoid History and Future plans
+
+### History
+
+ZkNoid journey into Zk gaming development started at 2023 in november in ETHGlobal Istanbul hackathon. Team provide high complicated but well-known arcade game: Arkanoid. This game was became the first game with zk provable process on Mina Protocol and gave the development team a victory. That makes the beginning of the project ZkNoid. Since november we faced on with a lot of challenges during development and figure it out. The new era of gaming is started: zk-provable, fairness and fun. Our project and team growing every day and now we can offer to the Web3 gamers more provable games and for developers opportunity to build games using ZkNoid SDK, which provide  “easy to deploy” process. We also creating a lot of education content like guides and articles, researching and build day by day the provable future.
+
+### Roadmap
+
+Today, the main goals of the ZkNoid application are to launch on the Mainnet with a L1 Lottery Game,  attract third-party developers to build on our SDK, development and launch project Token with Order Book. The full roadmap is as follows:
+
+![Docs_Roadmap.png](/Docs_Roadmap.png)
+
+**1️⃣ Lottery L1** 
+
+The Lottery game pretend to become the first game with zk-proof on Mina Mainnet. It will be the honest lottery in Web3 world. To ensure a fair playing process ZkNoid development team is going to integrate VRF technology into the winning number generation process and conduct an audit with the help of a third party company. The game will be audited by the Extropy audit team.
+
+![Roadmap 2.png](/Roadmap_2.png)
+
+**2️⃣ SDK & Guides** 
+
+Our main goal is to help and provide zk-provable infrastructure for Mina game developers. We are working on improving our SDK to make it more intuitive and easier to use. We also expect more educational content, guides, and workshops for the developers in the community.
+
+![Roadmap 3.png](/Roadmap_3.png)
+
+3️⃣ **ETHGlobal Hackatones**
+
+ZkNoid will be co-hosting ETHGlobal hackathons with MinaProtocol. We will provide tracks with prizes at ETHGlobal Online Hackathon in August and ETHGlobal Singapore in September 2024. Hackers who use the ZkNoid SDK have the opportunity to win rewards and get development support to onramp their games to the Mina Ecosystem.
+
+**4️⃣ Token & Order Book**
+
+Can’t wait to trade tokens on MinaProtocol? Order book is here to rock the Mina community and break the ice of DeFi!
+
+**5️⃣ Clicker game: play-to-earn**
+
+Initial token distribution will be made by the “proof of tap” online clicker game with play-to earn mechanism
+
+## Part of global ZK ecosystem
+
+ZkNoid takes a sustainable role in the global Zero-Knowledge community. 
+
+Winner of Zeko [boost program](https://x.com/ZekoLabs/status/1803928670781968711) and [Mina Protocol](https://x.com/MinaProtocol/status/1803144501747171788) grant programs. Utilize [proto-kit](https://x.com/proto_kit) appchain solution. Use VRF from [ZkOn](https://x.com/zkon_network/status/1816793194392154545) for randomness. Integrates [Auro wallet](https://x.com/aurowallet_com) and [Pallad wallet](https://x.com/pallad_/status/1820809861560488284). Promoted by [Astromina](https://x.com/AstrominaOrg/status/1820029191422931102), [zkon](https://x.com/zkon_network) and [Staketab](https://minascan.io/directory/ZKnoid)
+
+## Stay it touch with ZkNoid
+
+Do you have any more questions about our project? Would you like to collaborate or build something using the ZkNoid SDK? Or may be you just want to discuss development using zk technologies, you can find us on social media and ask your questions, and we hear it out your ideas. Our team consists of open-minded and enthusiastic people who will be happy to have a conversation with you.
+
+[**Twitter**](https://x.com/ZkNoid)
+
+[**Discord**](https://discord.gg/XM7cjTp4)
+
+[**Telegram**](https://t.me/ZkNoid)
+
+[**Medium**](https://zknoid.medium.com/)
+
+[**Youtube**](https://www.youtube.com/@ZkNoid)

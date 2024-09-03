@@ -1,0 +1,45 @@
+---
+title: 'Games Architecture'
+description: 'Games Architecture'
+---
+
+import Image from 'next/image';
+
+## Arkanoid
+
+### Modules used
+Arkanoid game is an action game utilizing recursive proofs to build leaderboard. 
+Arkanoid game process is divided into ticks where the game state is reproduced on every tick inside the circuit. 
+The following modules are used:
+- GameHub
+- RandomManager
+
+<br/>
+<Image src="/zknoid_for_developers/games_architecture/arkanoid_modules.jpeg" width={1280} height={720}/>
+
+## Randzu, Checkers game
+
+### Modules used
+Randzu and checkers are PvP multiplayer board games.
+Game processes involves the mechanism for opponents to find each other and the ability to create a lobby to invite friends to play.
+Games require gasless transactions to not interrupt user with wallet prompt every time when making moves.
+The following modules are used:
+- LobbyManager
+- Matchmaking
+- Session keys
+
+<br/>
+<Image src="/zknoid_for_developers/games_architecture/randzu_checkers_modules.jpeg" width={1280} height={720}/>
+
+
+## Thimblerig game
+### Modules used
+Thimblerig is a luck game. It utilizes commit-reveal scheme to hide the secret data and then reveal it. 
+Game allows the hider and guesser to find each other and to play the game with friends by creating lobbies.
+Game requires gasless transactions to not interrupt user with wallet prompt every time when making moves.
+
+
+The following modules are used
+
+<br/>
+<Image src="/zknoid_for_developers/games_architecture/thimblerig_modules.jpeg" width={1280} height={720}/>
