@@ -1,5 +1,7 @@
 export default {
   overview: {},
-  frontend: {},
+  frontend_config: {},
+  frontend_context: {},
+  frontend_hooks: {},
   contracts: {},
 };
