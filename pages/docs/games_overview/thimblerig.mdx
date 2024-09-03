@@ -3,7 +3,22 @@ title: 'Thimblerig'
 description: 'Thimblerig'
 ---
 
-## Thimblerig game rules
+import Image from 'next/image';
+
+## Thimblerig
+
+### Description
+
+Two players participate in each round of the game. One player hides a ball under one of three thimbles, and the other player attempts to guess the location of the ball.
+
+The hiding player places ball under one of three thimbles trying to confuse the guessing player.
+
+The guessing player selects one of the thimbles, trying to guess which thimble conceals the ball.
+
+The hiding player then reveals whether the ball is under the chosen
+
+
+### Rules
 
 Objective:
 The objective of the game is to correctly guess the location of a hidden ball under one of three thimbles.
@@ -21,3 +36,19 @@ Scoring:
 - If the guessing player correctly identifies the thimble containing the ball, they win 2/3 of the round's budget.
 - If the guessing player guesses incorrectly, they receive 1/3 of the round's budget as a consolation prize.
 - The hiding player receives nothing if the ball's location is not revealed by them.
+
+<Image src={'/games_overview/thimblerig.png'} width={1600} height={826}/>
+
+**Network layer:** protokit appchain
+
+### Provable part
+
+The following parts are proved
+- Number generation correctness
+- Number commiting correctness
+- Guess making correctness
+- Game outcome correctness
+
+### Game Architecture
+
+To read more about game architecture follow this [link](https://www.notion.so/Games-Overview-c83393f76a2a40e29515dccf3bc2541e?pvs=21)

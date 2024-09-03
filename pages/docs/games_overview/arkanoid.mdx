@@ -3,20 +3,27 @@ title: 'Arkanoid'
 description: 'Arkanoid'
 ---
 
+import Image from 'next/image';
 
-## Arkanoid game rules
+## Arkanoid
 
-In Ankanoid, your objective is to break all the bricks on the screen using a bouncing ball and a platform. 
+### Description
+
+In Arkanoid, your objective is to break all the bricks on the screen using a bouncing ball and a platform. 
 You can control the game by using the left and right arrow keys on your keyboard to move the platform. 
 You need to bounce the ball and prevent it from falling off the bottom of the screen.
 
 
-Game highlights the game object positions inside ZK circuit with dashed lines. 
-The game object movements are reproduced and used to create a game process proof that is verified later on the Mina blockchain
+<Image src={'/games_overview/arkanoid.png'} width={1600} height={1077}/>
 
-<video width={'500px'} height={'500px'} autoPlay muted loop style={{paddingTop: '30px'}}>
-  <source src={'/zknoid_gameplay_enc.mp4'} type="video/mp4" />
-    Your browser does not support the video tag.
-</video>
+**Network layer:** protokit appchain
 
-import Image from 'next/image';
+### Provable part
+
+In the Arkanoid game, on every game tick the game state is reproduced inside the circuit. 
+While playing, the recursive zero knowledge proof is accumulated verifying the current game score correctness.
+At the end of each game round, scores are added to the leaderboard accompanied by proof of their fairness
+
+### Game Architecture
+
+To read more about game architecture follow this [link](https://www.notion.so/Games-Overview-c83393f76a2a40e29515dccf3bc2541e?pvs=21)

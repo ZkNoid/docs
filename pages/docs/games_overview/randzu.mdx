@@ -3,7 +3,9 @@ title: 'Randzu'
 description: 'Randzu'
 ---
 
-## Randzu game rules
+import Image from 'next/image';
+
+## Randzu
 
 Randzu is a game played on a 15x15 grid, similar to tic-tac-toe. 
 Two players take turns placing their mark, using balls of different colors. 
@@ -11,8 +13,17 @@ The goal is to get five of your marks in a row, either horizontally, vertically 
 
 The game continues until one player achieves the winning pattern or until the entire grid is filled without a winner, resulting in a draw.
 
-<video autoPlay muted loop style={{paddingTop: '30px'}}>
-  <source src={'/randzu_gameplay_enc.mp4'} type="video/mp4" />
-    Your browser does not support the video tag.
-</video>
+<Image src={'/games_overview/randzu.png'} width={1600} height={1079}/>
 
+**Network layer:** protokit appchain
+
+### Provable part
+
+In the Randzu game, the application proves several actions: 
+- Finding of an opponent
+- Correct game field change after player move
+- The loss and or win determination
+
+### Game Architecture
+
+To read more about game architecture follow this [link](https://www.notion.so/Games-Overview-c83393f76a2a40e29515dccf3bc2541e?pvs=21)
