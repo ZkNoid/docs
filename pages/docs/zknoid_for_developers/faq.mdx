@@ -1,0 +1,309 @@
+# Developers faq
+
+### How to write a zkApp, and what are the requirements?
+Building in ZkNoid is centered around creating your own runtime module, similar to a smart contract. Each runtime module has its own state and methods that users can call via their wallet. The key rule in writing a zkApp is to write provable code. When writing with o1js, you're generating a circuit. Non-provable types (if not constants) won't be included in the circuit, which can lead to security issues or failure.
+
+### What is a provable type?
+Provable types, defined in the o1js or Protokit libraries (e.g., Field, UInt64, CircuitString), have the necessary logic to generate a circuit but behave like regular types. Be cautious with methods that convert provable types into non-provable ones—these should only be used outside runtime modules.
+
+### Can I use non-provable types?
+Yes, if the non-provable variable is constant across every method invocation. For example, loops with a fixed number of iterations are allowed, but dynamic loops based on user input are not provable.
+
+For example you can do for cycle with constant amount of cycles:
+
+```ts
+for (let i = 0; i < YOUR_MAX_CYCLE_SIZE; i++) {
+}
+
+```
+
+In this case i is not constant in ordinary way, but it is constant from curcuit perspective.
+
+Following code is not provable, as number of cycles varies, wich mean, that curcuit will be different for different function inputs
+
+```ts
+for (let i = 0; i < YOUR_MAX_CYCLE_SIZE; i++) {
+	if (someCondition()) {
+		break;
+	}
+}
+
+```
+
+### How do I create a custom provable type?
+You can define custom provable types using o1js Struct:
+
+```ts
+class MyCustomType extends Struct ({
+	field1: Field,
+	filed2: MyOtherCustomType
+}) {
+	foo() {
+	}
+
+	bar(other: MyCustomType): Bool {
+	}
+}
+
+```
+
+### Can I use control flow statements like if, switch, or for?
+Yes, but only if conditions are known at compile time. You cannot use runtime conditions, but you can use provable conditionals like Provable.if().
+
+For example you can do something like it:
+
+```ts
+for (let i = 0; i < YOUR_MAX_CYCLE_SIZE; i++) {
+	if (i == YOUR_MAX_CYCLE_SIZE - 1) {
+		// Do something
+	}
+}
+
+```
+
+But you can't do some real control flow stuff, like:
+
+```ts
+	foo(a: Field) {
+		if (a.graterThen(5).toBoolean()) { // this will not work
+
+		}
+	}
+
+```
+
+### Is there a way to use non-provable code?
+For complex logic that isn't fully provable, you can use Provable.asProver() to execute unprovable code within a block. However, this approach is insecure and should only be used in a hackathon or development environment, not in production.
+
+They are creating in following way, and can contain every code, that you want it to contain:
+
+```ts
+	let a = Field(0)
+
+	Provable.asProver(() => {
+		if (+someValue.toString() > 5) { // Some unprovable logic
+			// Do some creasy stuf
+		}
+
+		a = ...
+	})
+
+	this.someStore.set(a); // Now we can use a, despite that it value have gotten in unprovable way
+
+```
+
+However, again, this is unprovable, so everything that happen in asProver block can be easilly manipulated.
+
+### Can we manipulate arrays?
+o1js provides provable arrays (Provable.Array(type, size)). These arrays are fixed in size and cannot use methods like push or pop. You need to use dummy values for empty elements and process every element to conditionally update the array.
+
+Here is an example on how you update an array element:
+
+```ts
+for (let i = 0; i < ARRAY_SIZE; i++) {
+	myArray[i] = Provable.if(confition(myArray[i]), newValue, myArray[i])
+}
+
+```
+
+### How do I get random numbers?
+For pseudo-randomness, use the RandomGenerator with a seed:
+
+```ts
+const generator = RandomGenerator.from(seed);
+const myRandomValue = generator.getNumber(maxValue).magnitude;
+
+```
+
+For true randomness, you'll need a VRF, which is not yet available in ZkNoid, but its ok to use RandomGenerator for hackathon usage.
+
+### What is a zk proof, and how do I use it in my app?
+Each runtime method invocation creates a zk proof. You can also manually create zk proofs by defining inputs, outputs, and logic using ZkProgram.
+
+```ts
+class PublicInput extends Struct({
+	// Some public input values
+  }) {}
+
+  class PublicOutput extends Struct({
+    // Some public output values
+  }) {}
+
+  const Programm = ZkProgram({
+    publicInput: PublicInput,
+    publicOutput: PublicOutput,
+    name: 'some-name',
+    methods: {
+      myMethodName: {
+        privateInputs: [/* Some private values */],
+        method: async (publicInput: PublicInput, /* Some private values*/) => {
+        },
+      },
+    },
+  });
+
+  class Proof extends ZkProgram.Proof(Programm) {}
+
+  ...
+
+  {
+  	myMethod(proof: Proof) {
+  		proof.verify();
+
+  		proof.publicInput // Use publicInput somehow
+  		proof.publicOutput // Use publicOutput somehow
+  	}
+  }
+
+```
+
+### What is recursive zk proof?
+Recursive zk proofs allow a proof to accept another proof as an input. This lets you zip large logic into a single proof and create more complex, customizable logic.
+
+```ts
+export const RecursiveProgramm = ZkProgram({
+  name: 'some-recursive-program',
+  publicInput: PublicInput,
+  publicOutput: PublicOutput,
+  methods: {
+    init: {
+      privateInputs: [],
+      async method(
+      	publicInput: PublicInput
+      ): Promise<TicketReduceProofPublicOutput> {
+      	// return PublicOutputs with some inital
+      },
+    },
+    recursiveMethod: {
+      privateInputs: [SelfProof],
+      async method(
+        input: PublicInput,
+        prevProof: SelfProof<
+          PublicInput,
+          PublicOutput
+        >
+      ) {
+        prevProof.verify()
+
+        // do some logic with it and return PublicOutput
+      },
+    },
+  },
+});
+
+export class MyRecursiveProof extends ZkProgram.Proof(RecursiveProgramm) {}
+```
+
+### How can I query data from the RuntimeModule?
+To query data from a runtime module, use the query API:
+
+```ts
+await client.query.runtime.YourRuntimeModule.yourField.get();
+```
+
+### How can I call a method from the RuntimeModule and make the appchain transaction?
+
+In order to do this you need to 
+
+1. Get appchain client from ZkNoid context
+2. Cast client to infer the correct runtime modules types 
+3. Implement the function that makes onchain transaction, find the correct module, sign and send transaction
+
+An easy to understand example can be found in the [number guessing game](https://github.com/ZkNoid/zknoid/blob/develop/apps/web/games/number_guessing/NumberGuessing.tsx)
+
+```tsx
+  const { client } = useContext(ZkNoidGameContext);
+
+  if (!client) {
+    throw Error('Context app chain client is not set');
+  }
+
+  const client_ = client as ClientAppChain<
+    typeof numberGuessingConfig.runtimeModules,
+    any,
+    any,
+    any
+  >;
+  
+	// Query is needed to query data from chain
+  const query = networkStore.protokitClientStarted
+    ? client_.query.runtime.GuessGame
+    : undefined;
+    
+	// Function that makes appchain transaction
+  const hideNumber = async (number: number) => {
+	  // Resolving the correct appchain module
+    const guessLogic = client_.runtime.resolve('GuessGame');
+
+		// Making a transaction
+    const tx = await client.transaction(
+      PublicKey.fromBase58(networkStore.address!),
+      async () => {
+        await guessLogic.hideNumber(Field.from(number));
+      }
+    );
+
+    await tx.sign();
+    await tx.send();
+  };
+
+```
+
+### How do I get logs from my RuntimeModule?
+console.log is not provable, so place it inside an asProver block:
+
+```ts
+Provable.asProver(() => {
+  console.log('Your awesome log');
+});
+```
+
+### I got an assertion error while running my runtime module
+Protokit uses its own assertions, so o1js assertions won't work. Use Protokit assertions instead:
+
+```ts
+import { assert } from '@proto-kit/protocol';
+assert(UInt64.from(5).greaterThan(UInt64.from(1)), "Your assert message");
+```
+
+Also, use UInt64 from Protokit to avoid compatibility issues:
+
+```ts
+import { UInt64 } from '@proto-kit/library';
+```
+
+### Provable.if isn't working with my custom type
+Provable.if needs a type to be explicitly defined when working with custom types:
+
+```ts
+Provable.if<MyCustomType>(condition, value1, value2);
+```
+
+### How to use GamePage.tsx?
+
+You need just to wrap your game into \<GamePage\> component and pass game config as a props and now your will get the default layout for the game, described into “game-template”.
+
+GamePage have some props:
+
+- useLayout(bool) - disabling this allows to build a fully custom UI for your game
+- useTabs(bool) - this prop allows to use game default/custom tabs
+- useTitle(bool) - this prop allows to remove title image if your not need it
+- gameTitleImage - this props allows you to set a image for your game
+- customGameTitle(ReactNode) - this prop allows you to make a fully custom game title on the place of original
+- tabs(array) - this prop allows you to make a custom game tabs if you need some in addition to default game tab (lobby and competitions tabs is default tabs)
+
+```tsx
+export default function GameTemplate() {
+  return (
+    <GamePage gameConfig={gameTemplateConfig}>
+      <section className={"w-full h-screen text-center"}>Game Template</section>
+    </GamePage>
+  );
+}
+```
+
+### Do you have custom game tabs?
+
+Writing custom tabs is easy with ZkNoid here a example how to add a custom information tab in addition to default tabs
+
+You can watch for current tab using useSearchParams by param “tab”
