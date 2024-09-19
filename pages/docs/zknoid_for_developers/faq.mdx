@@ -307,3 +307,30 @@ export default function GameTemplate() {
 Writing custom tabs is easy with ZkNoid here a example how to add a custom information tab in addition to default tabs
 
 You can watch for current tab using useSearchParams by param “tab”
+
+```tsx
+export default function GameTemplate() {
+    const searchParams = useSearchParams();
+    const currentTab = searchParams.get("tab");
+    
+  return (
+    <GamePage 
+        gameConfig={gameTemplateConfig}
+        tabs={[{
+            name: 'Information',
+            tab: 'information',
+        }]}
+    >
+        {currentTab === "information" ? (
+            <section className={"w-full h-screen text-center"}>
+                Information tab!
+            </section>
+        ): (
+            <section className={"w-full h-screen text-center"}>
+                Game Page!
+            </section>
+        )}
+    </GamePage>
+  );
+}
+```
