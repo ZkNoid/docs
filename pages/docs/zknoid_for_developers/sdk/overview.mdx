@@ -11,4 +11,22 @@ import { Tabs } from 'nextra/components'
 ZkNoid is a modular platform that can be easily extended with custom games. 
 Every game consist of front-end and chain-end part.
 
+The core of ZkNoid framework is the github repository — link.
+Framework is divided into 4 packages — sdk, games, store and chain.
 
+To start building with ZkNoid you need to clone the repo and launch the store:
+
+```bash
+git clone https://github.com/ZkNoid/store zknoid
+cd zknoid
+ 
+# ensures you have the right node js version
+# !important! Without this step the app may not work!
+nvm use
+
+pnpm install
+# Runs the game store
+pnpm env:inmemory dev
+```
+
+The [hacker's guide article](https://zknoid.medium.com/zknoid-hackers-guide-v2-try-yourself-the-updated-store-benefits-c736ca1c76e8) from our blog describes the process of building your game with ZkNoid SDK
