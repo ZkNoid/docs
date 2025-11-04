@@ -6,9 +6,6 @@ export default {
   },
   technologies_we_offer: {},
   technologies_architecture: {},
-  sdk: {
-    title: "SDK",
-  },
   guides: {},
   integration_guide: {},
   faq: {
