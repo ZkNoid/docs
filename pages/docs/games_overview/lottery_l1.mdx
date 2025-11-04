@@ -11,21 +11,21 @@ import Image from 'next/image';
 
 This game is based on users luck. Lottery round lasts 24 hours, user buys ticket and chooses 6 numbers on it, this ticket is added to his wallet. At the end of the round, a random 6-digit win number is generated and user can claim his reward if he guessed the numbers or a part of them. The percentage of winnings depends on the number of guessed numbers in the ticket.
 
+Network layer: Mina L1
+
 ### Rules
 
-1. Round Duration: each round lasts approximately 24 hours
+1. Round Duration: each round lasts approximately 7 days
 2. Ticket Purchase:
-    1. Each ticket costs 1 $MINA
+    1. Each ticket costs 10 $MINA
     2. Ticket consist of 6 numbers (1–9) and quantity
     3. Duplicated tickets are allowed
-3. Platform Fees: **A 3% fee is deducted from each ticket purchase**
+3. Platform Fees: A 3% fee is deducted from each ticket purchase
 4. Winning Ticket reveal: winning ticket revealed within 2 days after round ends
 5. Claiming Rewards: each ticket earns points*( 0, 90, 324, 2187, 26244, 590490, or 31886460 for 0, 1, 2, 3, 4, 5, or 6 correct numbers)*. The reward is a share of the total bank based on points, order of numbers matters
 6. Refunds: If the winning ticket is not generated within 2 days, you can get a refund for your ticket
 
 <Image src={'/games_overview/lottery_l1.png'} width={1288} height={1249}/>
-
-**Network layer:** L1 Network
 
 ### Provable part
 
@@ -37,7 +37,11 @@ In the Lottery game we are proving a several gamers and application actions
 - Winning ticket unpredictable generation
 - Tickets claiming
 
-For winning random numbers generation we are using VRF delivered by ZKON team
+### Learn more about the L1 Lottery game
+
+1. [How to play the L1 Lottery](https://medium.com/zknoid/how-to-play-the-l1-lottery-game-a86e366f4136)
+2. [Gift code guide](https://medium.com/zknoid/zknoid-lottery-gift-code-mechanic-guide-49074a1943ae)
+3. [L1 Lottery testnet stats](https://medium.com/zknoid/reflecting-on-the-lottery-l1-testnet-achievements-and-future-prospects-de2066638612)
 
 ### **Game Architecture**
 
