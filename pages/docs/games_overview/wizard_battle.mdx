@@ -34,7 +34,7 @@ The project’s architecture is built around two main layers:
 - **Battle architecture** – where players interact, move, and cast spells.
 - **Non-battle architecture** – where items, crafting, and the in-game economy live on-chain.
 
-![image](/games_overview/WBArch_1.svg)
+<Image src={"/games_overview/WBArch_1.svg"} width={2643} height={550} />
 
 While the current implementation still uses some centralized components, the entire system is designed for future decentralization and full zero-knowledge validation.
 
@@ -76,7 +76,7 @@ Each turn follows this universal sequence:
 
 All players perform actions at the same time, ensuring fairness while keeping deterministic logic.
 
-![Image](games_overview/WBArch_2.svg)
+<Image src={"/games_overview/WBArch_2.svg"} width={395} height={1198} />
 
 **Timeout Manager**
 
@@ -88,7 +88,7 @@ If a player fails to respond in time, the Timeout Manager ends the match and mar
 
 This system prevents griefing and ensures that matches never stall indefinitely.
 
-![Image](games_overview/WBArch_3.svg)
+<Image src={"/games_overview/WBArch_3.svg"} width={1185} height={442} />
 
 **State Commit and Verification**
 
@@ -124,7 +124,7 @@ Each player essentially operates on their own board, without collisions or share
 
 **Game Completion and Verification Paths**
 
-![Image](games_overview/WBArch_4.svg)
+<Image src={"/games_overview/WBArch_4.svg"} width={2850} height={241} />
 
 At the end of a match, players can finalize results through two possible verification modes:
 
@@ -142,7 +142,7 @@ Advanced players can choose the **zero-knowledge path**, using **o1js** to gener
 
 We’d love to make the ZK path the default, but proof generation is still too heavy for many players, so we currently let users toggle between both modes manually.
 
-![Image](games_overview/WBArch_5.svg)
+<Image src={"/games_overview/WBArch_5.svg"} width={1381} height={373} />
 
 **Deposits and Slashing**
 
@@ -176,7 +176,7 @@ Later, we plan to introduce a **data availability layer**, where match proofs an
 
 Outside of combat, WB runs on **EVM-compatible smart contracts** that handle crafting, trading, and item management.
 
-![Image](games_overview/WBArch_6.svg)
+<Image src={"/games_overview/WBArch_6.svg"} width={947} height={384} />
 
 **Items and Crafting**
 
