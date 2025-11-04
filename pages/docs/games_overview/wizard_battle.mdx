@@ -1,0 +1,207 @@
+---
+title: "Wizard Battle"
+description: "Wizard Battle"
+---
+
+import Image from "next/image";
+
+# Wizard Battle
+
+## Description
+
+Wizard Battle is a web3 strategy game where players engage in PvP and PvE duels to reclaim lost knowledge of this magic world. It combines tactical combat, crafting, and character progression within a provably fair, on-chain environment.
+
+**Core Features**
+
+- **PvP & PvE Combat** - Turn-based tactical battles with real-time state verification.
+- **Hero Classes** - Each hero has unique passive skills and active spells.
+- **Crafting & Gear Systems** - Players can forge Orbs, armor, and items that enhance abilities and stats.
+- **Provable Fairness** – All randomness and critical rolls are verified with zkProofs, guaranteeing fairness.
+
+**Gameplay Loop**
+
+1. **Prepare** – Equip gear, select a hero, and choose skills.
+2. **Compete** – Enter the Arena (PvP or PvE) or Expeditions for rewards.
+3. **Earn** – Gather materials, loot, and crafting components.
+4. **Evolve** – Upgrade Orbs, craft new equipment, and progress in rank.
+
+## Architecture
+
+**Wizard Battle (WB)** is our experiment in bringing true verifiability and fairness to multiplayer gaming through cryptography.
+
+The project’s architecture is built around two main layers:
+
+- **Battle architecture** – where players interact, move, and cast spells.
+- **Non-battle architecture** – where items, crafting, and the in-game economy live on-chain.
+
+![image](/games_overview/WBArch_1.svg)
+
+While the current implementation still uses some centralized components, the entire system is designed for future decentralization and full zero-knowledge validation.
+
+### Battle Architecture
+
+At the core of Wizard Battle lies an **optimistic approach**: during the match, we trust players’ local states.
+
+Each player keeps their **entire game state** on their device and only shares partial information — the _public state_ — depending on gameplay visibility rules.
+
+For example, a wizard is always invisible, meaning their position doesn’t appear in the public state.
+
+This model preserves both privacy and integrity, enabling mechanics that would be impossible in traditional transparent blockchain games.
+
+**Player State**
+
+A player's state includes:
+
+- Selected wizard
+- Chosen skills and their cooldowns
+- The map
+- Current position
+- Character attributes (HP, max HP, strength, agility, etc.)
+
+The public portion of this state is automatically derived from game logic and visibility rules.
+
+Everything else remains private and verifiable only through post-match checks.
+
+**Turn Sequence**
+
+Each turn follows this universal sequence:
+
+1. Players apply **local spells** (which don’t require network sync).
+2. They send their actions to the server.
+3. The server broadcasts all actions to every player.
+4. Each client applies those actions locally.
+5. Players send their **updated public state** back.
+6. The server shares all new public states among players.
+7. Clients synchronize and prepare for the next turn.
+
+All players perform actions at the same time, ensuring fairness while keeping deterministic logic.
+
+![Image](games_overview/WBArch_2.svg)
+
+**Timeout Manager**
+
+To prevent deadlocks, we introduced a **Timeout Manager**.
+
+It acts as a central authority that gives every player **2 minutes** to submit their turn.
+
+If a player fails to respond in time, the Timeout Manager ends the match and marks that player as the loser.
+
+This system prevents griefing and ensures that matches never stall indefinitely.
+
+![Image](games_overview/WBArch_3.svg)
+
+**State Commit and Verification**
+
+Every turn, players submit a **state commit** — a cryptographic hash of their entire game state (public and private) signed with their session key.
+
+These commits become proof checkpoints used for post-match validation.
+
+Because the full state remains private during gameplay, WB relies **entirely on post-match verification**.
+
+Only after the game ends can players reveal their data and confirm that all actions were valid and rule-compliant.
+
+**Session Keys**
+
+Each match uses a **locally generated session key**, signed by the player’s main wallet once at the start.
+
+These keys are stored and used locally throughout the match, eliminating the need to sign every action on-chain and keeping gameplay fluid while maintaining cryptographic authenticity.
+
+**Randomness and Fairness**
+
+Some spells rely on **pseudorandom behavior**.
+
+WB uses a **hash-chain–based random source**: the server generates a chain of hashes and reveals them in reverse order, one per turn.
+
+This approach makes outcomes both _unpredictable_ and _provable_ after the game.
+
+For now, we don’t plan to replace this system — it’s deterministic, lightweight, and easy to verify.
+
+**Number of Players and Scalability**
+
+While WB currently focuses on **1v1 battles**, the architecture scales naturally to **NxM matches** or even **PvE** modes.
+
+Each player essentially operates on their own board, without collisions or shared line-of-sight, which makes simultaneous turns trivial to extend to multiple participants.
+
+**Game Completion and Verification Paths**
+
+![Image](games_overview/WBArch_4.svg)
+
+At the end of a match, players can finalize results through two possible verification modes:
+
+**1. Optimistic Path**
+
+For most players, performance and UX come first.
+
+The optimistic path lets players submit all their actions to the server, which checks validity and finalizes the match.
+
+If fraud is detected, a single invalid transition is enough to prove cheating.
+
+**2. ZK Path**
+
+Advanced players can choose the **zero-knowledge path**, using **o1js** to generate recursive proofs verifying that all turns followed the game’s rules — without revealing private data.
+
+We’d love to make the ZK path the default, but proof generation is still too heavy for many players, so we currently let users toggle between both modes manually.
+
+![Image](games_overview/WBArch_5.svg)
+
+**Deposits and Slashing**
+
+Before a match begins, each player deposits a small amount (e.g., **1 MINA**) into a smart contract.
+
+This deposit partly covers transaction fees and acts as a **stake** for honest behavior.
+
+If no fraud is found, players keep their deposit.
+
+If cheating is detected — through either verification path — the entire deposit is forfeited.
+
+This system economically enforces fairness.
+
+**Post-Match Disputes and Replays**
+
+After the game, players enter a **dispute window** (initially one day, later one hour or less).
+
+During this period, they can reveal all submitted states and actions.
+
+Any other player can verify the integrity of those actions or challenge suspicious data.
+
+A full **replay system** will also be introduced, allowing anyone to re-simulate a match from the disclosed actions and seeds — useful for tournaments, audits, or community-driven anti-cheat checks.
+
+**Data Storage and Availability**
+
+In the first version, all game data — actions, commits, and results — is stored **centrally** on the game server.
+
+Later, we plan to introduce a **data availability layer**, where match proofs and commits could be stored in decentralized storage such as IPFS or Arweave, with only essential hashes anchored on-chain.
+
+### Non-Battle Architecture
+
+Outside of combat, WB runs on **EVM-compatible smart contracts** that handle crafting, trading, and item management.
+
+![Image](games_overview/WBArch_6.svg)
+
+**Items and Crafting**
+
+All items and resources follow the **ERC-1155** standard.
+
+There are two main types:
+
+- **Crafting resources** – used purely for crafting or trading.
+- **Wearable items** – equipment that can be attached to a character to enhance stats such as HP, damage, or agility.
+
+In the current version, a centralized server fetches on-chain data, signs it, and provides verified item information to the battle client.
+
+This bridge ensures that items remain authentic while keeping battles fast and seamless.
+
+**Framework and Technology**
+
+Wizard Battle is built on **o1js**, chosen for its **convenience** and **support for recursive proofs**, which allows chaining multiple turns into a single compact proof.
+
+Proof generation times and hardware benchmarks are still being measured, and future updates will include optimizations to improve the player-side experience.
+
+### Development Roadmap
+
+Upcoming development milestones:
+
+- Smart contract deployment for crafting and combat.
+- Loot drops and marketplace implementation.
+- Expedition systems and cross-chain payment integration.
+- Testnet → Mainnet transition on Mina (Q1 2026).

@@ -1,0 +1,322 @@
+---
+title: "Randzu"
+description: "Randzu"
+---
+
+import Image from "next/image";
+
+## Randzu
+
+Randzu is a game played on a 15x15 grid, similar to tic-tac-toe.
+Two players take turns placing their mark, using balls of different colors.
+The goal is to get five of your marks in a row, either horizontally, vertically or diagonally.
+
+The game continues until one player achieves the winning pattern or until the entire grid is filled without a winner, resulting in a draw.
+
+<Image src={"/games_overview/randzu.png"} width={1600} height={1079} />
+
+**Network layer:** protokit appchain
+
+### Provable part
+
+In the Randzu game, the application proves several actions:
+
+- Finding of an opponent
+- Correct game field change after player move
+- The loss and or win determination
+
+### Game Architecture
+
+# Randzu game
+
+### Modules used
+
+Randzu is a PvP multiplayer board games.
+Game process involves the mechanism for opponents to find each other and the ability to create a lobby to invite friends to play.
+Gams require gasless transactions to not interrupt user with wallet prompt every time when making moves.
+The following modules are used:
+
+- LobbyManager
+- Matchmaking
+- Session keys
+
+<br />
+<Image
+  src="/zknoid_for_developers/games_architecture/randzu_checkers_modules.jpeg"
+  width={1280}
+  height={720}
+/>
+
+## Achitecture overview
+
+Ranzu is a multiplayer game and it involves matchmaking.<br />
+Matchmaking base contract can be found here – [MatchMaker.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/engine/MatchMaker.ts)<br />
+Randzu logic contract can be found here – [RandzuLogic.ts](https://github.com/ZkNoid/zknoid/blob/develop/packages/chain/src/randzu/RandzuLogic.ts)
+
+### Matchmaking
+
+Players pool is divided into rounds. Round occures every 5 blocks passed in network.
+Users who want to play need to re-register in rounds until opponent is not found.
+
+```typescript
+const roundId = this.network.block.height.div(PENDING_BLOCKS_NUM);
+```
+
+Matchmaking occures when user calls `register` passing session key.
+Firstly it checks that user can participate in game and is not already registered in the round.
+It registes user session key so next game transactions can be executed without confirmation.
+
+```typescript
+@runtimeMethod()
+public register(sessionKey: PublicKey, timestamp: UInt64): void {
+  // If player in game – revert
+  assert(this.activeGameId.get(this.transaction.sender).orElse(UInt64.from(0)).equals(UInt64.from(0)), "Player already in game");
+
+  // Registering player session key
+  this.sessions.set(sessionKey, this.transaction.sender);
+  const roundId = this.network.block.height.div(PENDING_BLOCKS_NUM);
+
+  // User can't re-register in round queue if already registered
+  assert(
+    this.queueRegisteredRoundUsers.get(new RoundIdxUser({ roundId, userAddress: this.transaction.sender })).isSome.not(),
+    "User already in queue"
+  );
+```
+
+Then pool queue is checked. If there is an opponent, he will be removed from the queue and a game with current player is initialized.
+If there're no opponents in the queue, user is registered in the round pool. Then if an opponent joined, he will initialize the game
+
+```typescript
+const queueLength = this.queueLength.get(roundId).orElse(UInt64.from(0));
+
+const opponentReady = queueLength.greaterThan(UInt64.from(0));
+const opponent = this.queueRoundUsersList.get(
+  new RoundIdxIndex({
+    roundId,
+    index: queueLength.sub(
+      Provable.if(opponentReady, UInt64.from(1), UInt64.from(0))
+    ),
+  })
+);
+
+const gameId = this.gamesNum.get().orElse(UInt64.from(0)).add(UInt64.from(1));
+// Setting active game if opponent found
+this.games.set(
+  Provable.if(opponentReady, gameId, UInt64.from(0)),
+  new GameInfo({
+    player1: this.transaction.sender,
+    player2: opponent.value.userAddress,
+    currentMoveUser: this.transaction.sender,
+    field: RandzuField.from(
+      Array(RANDZU_FIELD_SIZE).fill(Array(RANDZU_FIELD_SIZE).fill(0))
+    ),
+    winner: PublicKey.empty(),
+  })
+);
+```
+
+Case if opponent is not found
+
+```typescript
+// If opponent not found – adding current user to the list
+this.queueRoundUsersList.set(
+  new RoundIdxIndex({ roundId, index: queueLength }),
+  new QueueListItem({
+    userAddress: Provable.if(
+      opponentReady,
+      PublicKey.empty(),
+      this.transaction.sender
+    ),
+    registrationTimestamp: timestamp,
+  })
+);
+
+// If opponent not found – registeting current user in the list
+this.queueRegisteredRoundUsers.set(
+  new RoundIdxUser({
+    roundId,
+    userAddress: Provable.if(
+      opponentReady,
+      PublicKey.empty(),
+      this.transaction.sender
+    ),
+  }),
+  Bool(true)
+);
+
+// If opponent not found – incrementing queue length. If found – removing opponent by length decreasing
+this.queueLength.set(
+  roundId,
+  Provable.if(
+    opponentReady,
+    queueLength.sub(Provable.if(opponentReady, UInt64.from(1), UInt64.from(0))),
+    queueLength.add(1)
+  )
+);
+```
+
+Then it's registered that player and opponent are in an active game. They won't be able to participate new games until they finish the active one
+
+```typescript
+// Assigning new game to player if opponent found
+this.activeGameId.set(
+  this.transaction.sender,
+  Provable.if(opponentReady, gameId, UInt64.from(0))
+);
+
+// Setting that opponent is in game if opponent found
+this.activeGameId.set(
+  Provable.if(opponentReady, opponent.value.userAddress, PublicKey.empty()),
+  gameId
+);
+```
+
+Here is how matchmaking looks like on front-end
+
+<video
+  width="800px"
+  height="800px"
+  autoPlay
+  muted
+  loop
+  style={{ paddingTop: "10px" }}
+>
+  <source src={"/randzu_multiplayer_enc.mp4"} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+### Making moves
+
+Once game is initialized players can call `makeMove` function
+
+This function accepts new field state and a win witness if user proposed to be the winner
+
+```typescript
+@runtimeMethod()
+public makeMove(gameId: UInt64, newField: RandzuField, winWitness: WinWitness): void {
+  const sessionSender = this.sessions.get(this.transaction.sender);
+  const sender = Provable.if(sessionSender.isSome, sessionSender.value, this.transaction.sender);
+
+  const game = this.games.get(gameId);
+  assert(game.isSome, "Invalid game id");
+  assert(
+    game.value.currentMoveUser.equals(sender),
+    `Not your move: ${sender.toBase58()}`
+  );
+  assert(
+    game.value.winner.equals(PublicKey.empty()),
+    `Game finished`
+  );
+  winWitness.assertCorrect();
+```
+
+If win is proposed, it's checked that user really have marks of his color in a row either horizontally, vertically or diagonally.
+If non-zero win witness is provided and this check is passed, it's considered that current user is the winner
+
+```typescript
+let addedCellsNum = UInt64.from(0);
+for (let i = 0; i < RANDZU_FIELD_SIZE; i++) {
+  for (let j = 0; j < RANDZU_FIELD_SIZE; j++) {
+    let currentFieldCell = game.value.field.value[i][j];
+    let nextFieldCell = newField.value[i][j];
+
+    assert(
+      Bool.or(
+        currentFieldCell.equals(UInt32.from(0)),
+        currentFieldCell.equals(nextFieldCell)
+      ),
+      `Modified filled cell at ${i}, ${j}`
+    );
+
+    addedCellsNum.add(
+      Provable.if(
+        currentFieldCell.equals(nextFieldCell),
+        UInt64.from(0),
+        UInt64.from(1)
+      )
+    );
+
+    assert(
+      addedCellsNum.lessThanOrEqual(UInt64.from(1)),
+      `Not only one cell added. Error at ${i}, ${j}`
+    );
+    assert(
+      Provable.if(
+        currentFieldCell.equals(nextFieldCell),
+        Bool(true),
+        nextFieldCell.equals(currentUserId)
+      ),
+      "Added opponent`s color"
+    );
+
+    for (let wi = 0; wi < CELLS_LINE_TO_WIN; wi++) {
+      const winPosX = winWitness.directionX
+        .mul(UInt32.from(wi))
+        .add(winWitness.x);
+      const winPosY = winWitness.directionY
+        .mul(UInt32.from(wi))
+        .add(winWitness.y);
+      assert(
+        Bool.or(
+          winProposed.not(),
+          Provable.if(
+            Bool.and(
+              winPosX.equals(UInt32.from(i)),
+              winPosY.equals(UInt32.from(j))
+            ),
+            nextFieldCell.equals(currentUserId),
+            Bool(true)
+          )
+        ),
+        "Win not proved"
+      );
+    }
+  }
+}
+
+game.value.winner = Provable.if(
+  winProposed,
+  game.value.currentMoveUser,
+  PublicKey.empty()
+);
+```
+
+If game is ended, players active games are resetted
+
+```typescript
+// Removing active game for players if game ended
+this.activeGameId.set(
+  Provable.if(winProposed, game.value.player2, PublicKey.empty()),
+  UInt64.from(0)
+);
+this.activeGameId.set(
+  Provable.if(winProposed, game.value.player1, PublicKey.empty()),
+  UInt64.from(0)
+);
+```
+
+Then field is updated and turn is passed to the other player
+
+```typescript
+game.value.field = newField;
+game.value.currentMoveUser = Provable.if(
+  game.value.currentMoveUser.equals(game.value.player1),
+  game.value.player2,
+  game.value.player1
+);
+this.games.set(gameId, game.value);
+```
+
+Here is how moving looks like on front-end
+
+<video
+  width="800px"
+  height="800px"
+  autoPlay
+  muted
+  loop
+  style={{ paddingTop: "10px" }}
+>
+  <source src={"/randzu_gameplay_enc.mp4"} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>

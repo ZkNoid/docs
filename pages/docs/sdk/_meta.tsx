@@ -1,8 +1,8 @@
 import { title } from "process";
 
 export default {
-  games_architecture: {
-    title: "Games architecture",
+  overview: {
+    title: "Overview",
   },
   technologies_we_offer: {},
   technologies_architecture: {},

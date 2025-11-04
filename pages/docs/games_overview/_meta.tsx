@@ -1,8 +1,6 @@
 export default {
   lottery_l1: {},
-  arkanoid: {},
-  randzu: {},
-  checkers: {},
-  thimblerig: {},
-  tileville: {},
+  wizard_battle: {},
+  orbirium: {},
+  previous_games: "Previous games",
 };

@@ -1,22 +1,47 @@
 ---
-title: 'Arkanoid'
-description: 'Arkanoid game architecture'
+title: "Arkanoid"
+description: "Arkanoid"
 ---
 
-import Image from 'next/image';
+import Image from "next/image";
+
+## Arkanoid
+
+### Description
+
+In Arkanoid, your objective is to break all the bricks on the screen using a bouncing ball and a platform.
+You can control the game by using the left and right arrow keys on your keyboard to move the platform.
+You need to bounce the ball and prevent it from falling off the bottom of the screen.
+
+<Image src={"/games_overview/arkanoid.png"} width={1600} height={1077} />
+
+**Network layer:** protokit appchain
+
+### Provable part
+
+In the Arkanoid game, on every game tick the game state is reproduced inside the circuit.
+While playing, the recursive zero knowledge proof is accumulated verifying the current game score correctness.
+At the end of each game round, scores are added to the leaderboard accompanied by proof of their fairness
+
+### Game Architecture
 
 # Arkanoid
 
 ### Modules used
-Arkanoid game is an action game utilizing recursive proofs to build leaderboard. 
-Arkanoid game process is divided into ticks where the game state is reproduced on every tick inside the circuit. 
+
+Arkanoid game is an action game utilizing recursive proofs to build leaderboard.
+Arkanoid game process is divided into ticks where the game state is reproduced on every tick inside the circuit.
 The following modules are used:
+
 - GameHub
 - RandomManager
 
-<br/>
-<Image src="/zknoid_for_developers/games_architecture/arkanoid_modules.jpeg" width={1280} height={720}/>
-
+<br />
+<Image
+  src="/zknoid_for_developers/games_architecture/arkanoid_modules.jpeg"
+  width={1280}
+  height={720}
+/>
 
 ## Arkanoid like game verification overview
 
@@ -25,8 +50,8 @@ During each tick user input like arrow pressing is captured. For now every tick 
 
 ```typescript
 export class Tick extends Struct({
-    action: Int64,
-    momentum: Int64,
+  action: Int64,
+  momentum: Int64,
 }) {}
 ```
 
@@ -59,11 +84,11 @@ ZkNoid use field with size FIELD_WIDTH \* FIELD_HEIGHT. Bottom left corner is pl
 //#TODO Change coordinates upside down
 
 <Image
-    src={'/coord.svg'}
-    width={500}
-    height={500}
-    alt="Coordinates"
-    style={{ paddingTop: '10px' }}
+  src={"/coord.svg"}
+  width={500}
+  height={500}
+  alt="Coordinates"
+  style={{ paddingTop: "10px" }}
 ></Image>
 
 ## Game entities
@@ -116,11 +141,11 @@ Happens when ball's `x` coordinate is less than `0`.
 In that case `x` coordinate is reset to `-x` and `x` velocity is reversed
 
 <Image
-    src={'/left_collision.svg'}
-    width={200}
-    height={200}
-    alt="Left collision"
-    style={{ paddingTop: '10px' }}
+  src={"/left_collision.svg"}
+  width={200}
+  height={200}
+  alt="Left collision"
+  style={{ paddingTop: "10px" }}
 ></Image>
 
 Processing in smartcontract:
@@ -152,10 +177,10 @@ Happens when ball's `y` coordinate is less than `0`.
 In that case `y` coordinate is set to `-y` and `y` velocity is reversed.
 
 <Image
-    src={'/top_collision.svg'}
-    width={300}
-    height={300}
-    style={{ paddingTop: '10px' }}
+  src={"/top_collision.svg"}
+  width={300}
+  height={300}
+  style={{ paddingTop: "10px" }}
 ></Image>
 
 Processing in smartcontract:
@@ -184,10 +209,10 @@ Happens when ball's `x` coordinate is greater than `FIELD_WIDTH`.
 In that case `x` coordinate is reset to `2 * FIELD_WIDTH - x` and `x` velocity is reversed.
 
 <Image
-    src={'/right_collision.svg'}
-    width={300}
-    height={300}
-    style={{ paddingTop: '10px' }}
+  src={"/right_collision.svg"}
+  width={300}
+  height={300}
+  style={{ paddingTop: "10px" }}
 ></Image>
 
 Processing in smartcontract:
@@ -223,14 +248,14 @@ Processing in smartcontract:
 ```typescript
 const bottomBump = this.ball.position.y.sub(FIELD_PIXEL_HEIGHT).isPositive();
 let platformLeftEndExtended = Provable.if(
-    movedLeft,
-    this.platform.position,
-    prevPlatformPosition
+  movedLeft,
+  this.platform.position,
+  prevPlatformPosition
 );
 let platformRightEndExtended = Provable.if(
-    movedLeft,
-    prevPlatformPosition.add(PLATFORM_WIDTH),
-    this.platform.position.add(PLATFORM_WIDTH)
+  movedLeft,
+  prevPlatformPosition.add(PLATFORM_WIDTH),
+  this.platform.position.add(PLATFORM_WIDTH)
 );
 
 let adc0 = a.mul(FIELD_PIXEL_HEIGHT).sub(c);
@@ -252,10 +277,10 @@ For collision to happen, two condition should met:
 2. Ball should pass one of it border
 
 <Image
-    src={'/vertical_brick.svg'}
-    width={300}
-    height={300}
-    style={{ paddingTop: '10px' }}
+  src={"/vertical_brick.svg"}
+  width={300}
+  height={300}
+  style={{ paddingTop: "10px" }}
 />
 
 For checking trajectory pass we use this equations
@@ -310,24 +335,24 @@ After checking all borders collision, we should check for double collision, wher
 
 ```typescript
 hasRightBump = Provable.if(
-    moveRight,
-    hasRightBump.and(hasTopBump.not()).and(hasBottomBump.not()),
-    hasRightBump
+  moveRight,
+  hasRightBump.and(hasTopBump.not()).and(hasBottomBump.not()),
+  hasRightBump
 );
 hasLeftBump = Provable.if(
-    moveRight,
-    hasLeftBump,
-    hasLeftBump.and(hasTopBump.not()).and(hasBottomBump.not())
+  moveRight,
+  hasLeftBump,
+  hasLeftBump.and(hasTopBump.not()).and(hasBottomBump.not())
 );
 hasTopBump = Provable.if(
-    moveTop,
-    hasTopBump.and(hasRightBump.not()).and(hasLeftBump.not()),
-    hasTopBump
+  moveTop,
+  hasTopBump.and(hasRightBump.not()).and(hasLeftBump.not()),
+  hasTopBump
 );
 hasBottomBump = Provable.if(
-    moveTop,
-    hasBottomBump,
-    hasBottomBump.and(hasRightBump.not()).and(hasLeftBump.not())
+  moveTop,
+  hasBottomBump,
+  hasBottomBump.and(hasRightBump.not()).and(hasLeftBump.not())
 );
 ```
 
@@ -418,8 +443,8 @@ updateBrick(pos: IntPoint, value: UInt64): void {
 
 For wining conditions we have two varibles:
 
--   alreadyWon - if true game is won no matter what happens next. (Default: false)
--   winnable - if true, alreadyWon still can be set to true. (Default: true)
+- alreadyWon - if true game is won no matter what happens next. (Default: false)
+- winnable - if true, alreadyWon still can be set to true. (Default: true)
 
 When user destroys all bricks alreadyWon is setted to true in case of winnable === true.
 If ball hits the bottom border, winnable is setted to false.
@@ -435,9 +460,9 @@ AlreadyWon update:
 
 ```typescript
 this.alreadyWon = Provable.if(
-    this.totalLeft.equals(UInt64.from(1)).and(this.winable),
-    Bool(true),
-    this.alreadyWon
+  this.totalLeft.equals(UInt64.from(1)).and(this.winable),
+  Bool(true),
+  this.alreadyWon
 );
 ```
 
@@ -461,20 +486,20 @@ In processTicks(listed below) we have as inputs previos proof, and ticks. We che
 
 ```typescript
 export function processTicks(
-    prevProof: SelfProof<void, GameProcessPublicOutput>,
-    inputs: GameInputs
+  prevProof: SelfProof<void, GameProcessPublicOutput>,
+  inputs: GameInputs
 ): GameProcessPublicOutput {
-    prevProof.verify();
+  prevProof.verify();
 
-    let gameContext = prevProof.publicOutput.currentState;
-    for (let i = 0; i < inputs.ticks.length; i++) {
-        gameContext.processTick(inputs.ticks[i]);
-    }
+  let gameContext = prevProof.publicOutput.currentState;
+  for (let i = 0; i < inputs.ticks.length; i++) {
+    gameContext.processTick(inputs.ticks[i]);
+  }
 
-    return new GameProcessPublicOutput({
-        initialState: prevProof.publicOutput.initialState,
-        currentState: gameContext,
-    });
+  return new GameProcessPublicOutput({
+    initialState: prevProof.publicOutput.initialState,
+    currentState: gameContext,
+  });
 }
 ```
 
@@ -486,26 +511,26 @@ Final game verification consist of 3 parts:
 
 ```typescript
 export function checkGameRecord(
-    mapGenerationProof: MapGenerationProof,
-    gameProcessProof: GameProcessProof
+  mapGenerationProof: MapGenerationProof,
+  gameProcessProof: GameProcessProof
 ): GameRecordPublicOutput {
-    // Verify map generation
-    mapGenerationProof.verify();
+  // Verify map generation
+  mapGenerationProof.verify();
 
-    // Check if map generation output equal game process initial state
-    mapGenerationProof.publicOutput
-        .equals(gameProcessProof.publicOutput.initialState)
-        .assertTrue();
+  // Check if map generation output equal game process initial state
+  mapGenerationProof.publicOutput
+    .equals(gameProcessProof.publicOutput.initialState)
+    .assertTrue();
 
-    // Verify game process
-    gameProcessProof.verify();
+  // Verify game process
+  gameProcessProof.verify();
 
-    // Check if game is won
-    gameProcessProof.publicOutput.currentState.alreadyWon.assertTrue();
+  // Check if game is won
+  gameProcessProof.publicOutput.currentState.alreadyWon.assertTrue();
 
-    // Get score
-    return new GameRecordPublicOutput({
-        score: gameProcessProof.publicOutput.currentState.score,
-    });
+  // Get score
+  return new GameRecordPublicOutput({
+    score: gameProcessProof.publicOutput.currentState.score,
+  });
 }
 ```

@@ -1,124 +1,87 @@
 ---
-title: 'ZkNoid Overview'
-description: 'Explore ZK games with ZkNoid'
+title: "ZkNoid Overview"
+description: "Explore ZK games with ZkNoid"
 ---
 
-import Image from 'next/image';
+import Image from "next/image";
 import { Callout } from "nextra/components";
 
 ## ZkNoid overview
-<Image src={'/Docs-cover.png'} alt='logo' width={1500} height={500} style={{paddingTop: '10px'}} ></Image>
 
-Zero knowledge proof technologies are widely known and they are becoming an integral part of the products we use.
-And that is for a good reason. They're bringing an absolutely new dimensions of the space of making trustless systems. 
-Don’t believe it, prove it!
+<Image
+  src={"/Docs-cover.png"}
+  alt="logo"
+  width={1500}
+  height={500}
+  style={{ paddingTop: "10px" }}
+></Image>
 
-<a href={"https://zknoid.io/"}>ZkNoid</a> project is a home for provable gaming.
-On the platform you can try yourself the cutting edge games utilizing Zero-Knowledge proofs or build one using the provided infrastructure
+ZkNoid is a zk-native game development studio building Web3 games powered and verified by zero-knowledge proofs. Our mission is to bring provable fairness, true ownership, and transparent mechanics to gaming and create engaging experiences that are trustless as they are fun.
 
-### Benefits
-Explore the world of fair gaming powered by cryptography. 
-Here are the some benefits you can try
+At its core, ZkNoid combines innovative game design with cutting-edge cryptography, allowing us to deliver gameplay that is:
 
-**🙈 Information hiding.** Imagine a battle where player can attack an opponent without revealing his hero’s skills. Zero knowledge proofs can prove literally everything while preserving the next level of data privacy control
+- Fast & Responsive – Optimistic UIs and hybrid architectures make our games feel Web2-native.
+- Trustless & Fair – Zero-knowledge proofs ensure that game logic can’t be tampered with, providing verifiable fairness.
+- Cross-chain Ready – Seamless onboarding across Mina, Sui, EVM, and beyond.
+- Player-Centric – Accessibility and fun always come first, with intuitive onboarding and gameplay loops designed for all gamers, not just crypto natives.
 
-**🤝 Transparency and Trustworthiness.** Provable games allow players to independently verify the fairness of any outcome. This transparency helps to build trust among players, as they know that the game cannot be rigged.
+### Why Zero-Knowledge in Gaming?
 
-**📜 Immutable Records**. Using blockchain technology, game outcomes and proof verifications are recorded in an immutable ledger, ensuring that none of the parties involved can alter the results afterwards.
+Most blockchain games struggle with the tradeoff between speed and trust:
 
-💸 **Low fees**. Games on ZkNoid platform require to verify not the game logic execution BUT the cryptographic PROOF of the game logic execution. Block creators spend less effort on execution making the games playing cheaper
+- Web2 games are fast but centralized.
+- Web3 games are secure but often slow and clunky.
 
-🥞 **High scalability**. Cryptography allows to connect different ZK native networks using proofs. Games can launch their own appchain solutions like protokit or use Zeko. Matchmaking can be moved to appchain to be free for players. Assets from Zeko network may be used in game
+ZkNoid bridges this gap with ZKPs, letting players enjoy smooth gameplay while knowing every move, every battle, and every outcome is verifiably correct.
 
-ZkNoid project aims to on-ramp hundreds of projects to Zk-Proofs and grow new ZK-native games.
-Offering the required layers for easy and user-friendly integration of provable game mechanics, 
-ZkNoid acts as the first publisher for games with zero knowledge support
+This means:
 
+- Secure, tamper-proof gameplay.
+- Possibility of new gameplay mechanics.
+- Full transparency of game algorithms without sacrificing playability.
 
-## Quick navigation
-### For players
+## Vision & Core Principles
 
-New to the Zero-Knowledge gaming world? Here is our selections of games you could try
-- **Lottery game.** Try your luck in a provably fair environment – [game link](https://app.zknoid.io/games/lottery/global)
-- **Tileville game**. Build your city using fields – [game link](https://www.tileville.xyz/)
-- **Randzu game**. Play a tic-tac-toe game on a large field with random opponent – [game link](https://app.zknoid.io/games/randzu/global)
+### Our Vision
 
-<Callout>
-  Ready to dive into the development of next-gen games? Read more about SDK and it’s concepts in the [docs](docs)<br/>
-</Callout>
+We envision a gaming ecosystem where:
 
-<Callout>
-  Learn more about game rules and how to play in [docs for players](https://www.notion.so/ZkNoid-overview-1d035c2662124c6391e25613fc6cc884?pvs=21)
-</Callout>
+- Web2-quality speed meets web3-grade trust.
+- Players know their progress, victories, and rewards are verifiably fair.
+- Onboarding is simple enough for anyone, whether you’re a crypto-native or touching web3 for the first time.
+- Developers have the infrastructure to create ZK-powered games without reinventing the wheel.
+- Communities shape the worlds they play in, co-creating the lore, mechanics, and future of their favorite games.
 
-### For developers
+In short: We want to make web3 gaming as fun and accessible as web2, while unlocking entirely new mechanics made possible by ZK proofs.
 
-- **Docs & SDK.** Ready to dive into the development of next-gen games? Read more about SDK and it’s concepts in the [docs](https://www.notion.so/1d035c2662124c6391e25613fc6cc884?pvs=25)
-- **Articles.** You can find a lot of guides and articles in our [blog](https://medium.com/@zknoid). A short list of useful guides:
-  [Protokit tips & tricks](https://zknoid.medium.com/protokit-tips-tricks-our-experience-bonus-part-a7c6d04c5bfc), [Thimblerig game architecture](https://zknoid.medium.com/thimblerig-game-architecture-commit-reveal-scheme-a26ae8db8aa2)
-- **Videos.** Check out our coding guides on [youtube](https://www.youtube.com/@ZkNoid)
+### Core Principles
 
-### For games
+1. Fun First
+   - Gameplay must always come before tech. Blockchain and ZKPs are tools to enhance experience, not barriers to it.
+2. Verifiable Fairness
+   - Every outcome, from crafting to battles, is backed by cryptographic guarantees. Players never have to just “trust” a server, they can verify it.
+3. Seamless Experience
+   - Optimistic UIs, multi-chain wallets, and social logins keep gameplay smooth and onboarding easy. Web3 complexity stays under the hood.
+4. Openness & Interoperability
+   - Built to work across ecosystems: Mina, Sui, EVMs, and more. ZkNoid is not locked into a single chain.
+5. Community-Driven Growth
+   - Games thrive when players feel ownership. ZkNoid embraces open development, lore-building, and active collaboration with our community.
+6. Experimentation at the Edge
+   - ZK is a young and evolving field. ZkNoid is a space to experiment with new mechanics pushing the limits of what games can be.
 
-Want to integrate ZkNoid infrastructure, make your game modern and start using the amazing contemporary crypto benefits? 
-Read our [integration guide](https://www.notion.so/ZkNoid-overview-1d035c2662124c6391e25613fc6cc884?pvs=21). We’ll provide all the required support, just write us to integration@zknoid.io
+### The Road Ahead
 
+ZkNoid isn’t just building games. We’re building a foundation for ZK-powered entertainment universe where:
 
-### For investors
+- All games are provably fair.
+- Players own their progress.
+- Developers can easily plug into shared ZK infrastructure.
 
-- Pitch deck & whitepaper
+The endgame? A universe of fun, verifiable, and interconnected ZK games.
 
-Explore our [pitchdeck](https://www.notion.so/ZkNoid-overview-1d035c2662124c6391e25613fc6cc884?pvs=21) and [whitepaper](https://www.notion.so/ZkNoid-overview-1d035c2662124c6391e25613fc6cc884?pvs=21) explaining why should ZK proofs take over the gaming industry and why ZkNoid can become the driving force behind these innovations
+### ZkNoid History
 
-- Tokenomics
-
-Our token is native to the ZK blockchains. Will be launched on Mina Protocol with an airdrop and a game for initial distribution in Q1 2025. Check out [tokenomics](https://docs.zknoid.io/docs/tokenomics)
-
-- Revenue model
-
-ZkNoid builds an ecosystem of Zk Games with internal fees for integrated games, assets buying. Read more about project [revenue model](https://docs.zknoid.io/docs/business_model)
-
-## ZkNoid History and Future plans
-
-### History
-
-ZkNoid journey into Zk gaming development started at 2023 in november in ETHGlobal Istanbul hackathon. Team provide high complicated but well-known arcade game: Arkanoid. This game was became the first game with zk provable process on Mina Protocol and gave the development team a victory. That makes the beginning of the project ZkNoid. Since november we faced on with a lot of challenges during development and figure it out. The new era of gaming is started: zk-provable, fairness and fun. Our project and team growing every day and now we can offer to the Web3 gamers more provable games and for developers opportunity to build games using ZkNoid SDK, which provide  “easy to deploy” process. We also creating a lot of education content like guides and articles, researching and build day by day the provable future.
-
-### Roadmap
-
-Today, the main goals of the ZkNoid application are to launch on the Mainnet with a L1 Lottery Game,  attract third-party developers to build on our SDK, development and launch project Token with Order Book. The full roadmap is as follows:
-
-![Docs_Roadmap.png](/Docs_Roadmap.png)
-
-**1️⃣ Lottery L1** 
-
-The Lottery game pretend to become the first game with zk-proof on Mina Mainnet. It will be the honest lottery in Web3 world. To ensure a fair playing process ZkNoid development team is going to integrate VRF technology into the winning number generation process and conduct an audit with the help of a third party company. The game will be audited by the Extropy audit team.
-
-![Roadmap 2.png](/Roadmap_2.png)
-
-**2️⃣ SDK & Guides** 
-
-Our main goal is to help and provide zk-provable infrastructure for Mina game developers. We are working on improving our SDK to make it more intuitive and easier to use. We also expect more educational content, guides, and workshops for the developers in the community.
-
-![Roadmap 3.png](/Roadmap_3.png)
-
-3️⃣ **ETHGlobal Hackatones**
-
-ZkNoid will be co-hosting ETHGlobal hackathons with MinaProtocol. We will provide tracks with prizes at ETHGlobal Online Hackathon in August and ETHGlobal Singapore in September 2024. Hackers who use the ZkNoid SDK have the opportunity to win rewards and get development support to onramp their games to the Mina Ecosystem.
-
-**4️⃣ Token & Order Book**
-
-Can’t wait to trade tokens on MinaProtocol? Order book is here to rock the Mina community and break the ice of DeFi!
-
-**5️⃣ Clicker game: play-to-earn**
-
-Initial token distribution will be made by the “proof of tap” online clicker game with play-to earn mechanism
-
-## Part of global ZK ecosystem
-
-ZkNoid takes a sustainable role in the global Zero-Knowledge community. 
-
-Winner of Zeko [boost program](https://x.com/ZekoLabs/status/1803928670781968711) and [Mina Protocol](https://x.com/MinaProtocol/status/1803144501747171788) grant programs. Utilize [proto-kit](https://x.com/proto_kit) appchain solution. Use VRF from [ZkOn](https://x.com/zkon_network/status/1816793194392154545) for randomness. Integrates [Auro wallet](https://x.com/aurowallet_com) and [Pallad wallet](https://x.com/pallad_/status/1820809861560488284). Promoted by [Astromina](https://x.com/AstrominaOrg/status/1820029191422931102), [zkon](https://x.com/zkon_network) and [Staketab](https://minascan.io/directory/ZKnoid)
+ZkNoid journey into Zk gaming development started at 2023 in november in ETHGlobal Istanbul hackathon. Team provide high complicated but well-known arcade game: Arkanoid. This game was became the first game with zk provable process on Mina Protocol and gave the development team a victory. That makes the beginning of the project ZkNoid. Since november we faced on with a lot of challenges during development and figure it out. The new era of gaming is started: zk-provable, fairness and fun. Our project and team growing every day and now we can offer to the Web3 gamers more provable games and for developers opportunity to build games using ZkNoid SDK, which provide “easy to deploy” process. We also creating a lot of education content like guides and articles, researching and build day by day the provable future.
 
 ## Stay it touch with ZkNoid
 
@@ -126,7 +89,7 @@ Do you have any more questions about our project? Would you like to collaborate 
 
 [**Twitter**](https://x.com/ZkNoid)
 
-[**Discord**](https://discord.gg/XM7cjTp4)
+[**Discord**](https://discord.gg/BPf4972qnM)
 
 [**Telegram**](https://t.me/ZkNoid)
 

@@ -1,0 +1,112 @@
+---
+title: "Orbirium"
+description: "Orbirium"
+---
+
+import Image from "next/image";
+
+## Orbirium
+
+### Description
+
+Orbirium is a web3 ide crafter and the prequel to Wizard Battle.
+
+It introduces the celestial forge of Arcane Orbs (named Orbirium), combining idle gameplay mechanics with zk-verified fairness and a unique multi-layer architecture.
+
+This section breaks down the gameplay, architecture, and developer tools behind Orbirium.
+
+Network layer: Sui + Zeko
+
+### Overview
+
+At the dawn of magic, before wizards dueled in the Arena, there was the Forge of Orbirium - a mystical construct that created the first Orbs.
+
+Each Orb embodies a branch of magic: chaos, fire, water, light, nature, and illusion. Crafted within Orbirium, they channel unique abilities that shape the future of Wizard Battle.
+
+The core crafting loop of Orbirium is built around:
+
+- Collecions resources through active taps and passive upgrades.
+- Unlocking and crafting new items to progress through the resource tree.
+- Upgrading and refining your production flows to optimize output
+- Crafting as many Black Orbs as possible to climb the leaderboard.
+
+Orbirium is idle yet strategic: your choices in crafting and upgrades determine your long-term progression.
+
+### Architecture
+
+Orbirium is built on a three-layer architecture:
+
+1. Application Layer - User-facing interface with multi-chain wallets and optimistic UI for instant feedback.
+2. Sui Layer - Execution layer that verifies actions and manages game state every Sui block (~2s).
+3. Zeko Layer - Settlement layer that finalizes game results with zero-knowledge proofs for cryptographic integrity.
+
+**Application Layer**
+
+- Optimistic UI: User actions update instantly before on-chain confirmation. If a transaction fails, progress reverts to match the verified on-chain state.
+- Multi-Chain Wallets: Supports Mina, Sui, and EVM networks through:
+  - _Mysten dApp Kit_ - Sui wallet integration
+  - _Reown AppKit_ - Multi-chain onboarding (EVM, Solana, Bitcoin)
+  - _Mina Signer_ - Mina transaction signing
+  - _Wagmi_ - EVM wallet & contract interactions
+
+This enables seamless cross-chain play, flexible wallet options, and smooth user onboarding through social or email accounts.
+
+**Sui Layer**
+
+The Sui Layer acts as the execution engine for Orbirium.
+
+Each player’s state consists of three arrays (21 values each):
+
+- Resources: Current resource quantities
+- RPS (Resources per Second): Resource generation rates
+- Storage: Maximum capacity per resource
+
+_Rules and Actions_
+
+Every in-game action (click, upgrade, craft) applies a rule represented as three arrays that update the player’s state via simple addition:
+
+```
+new_resources = resources + rule_resources
+new_rps       = rps + rule_rps
+new_storage   = storage + rule_storage
+```
+
+For example:
+
+- Click Rule: `[+1 wood]`
+- Upgrade Rule: `[+1 orb, +0.1 stone/sec]`
+
+**Anti-Cheat Protection**
+
+To ensure fairness:
+
+- One-Time Upgrades: Each upgrade can be used only once.
+- Admin-Signed Rules: Every valid rule must be signed by Orbirium’s admin to prevent arbitrary state changes.
+
+### Zeko Layer
+
+The Zeko Layer serves as the settlement and verification layer.
+
+All Sui actions are mirrored as zkPrograms that produce zero-knowledge proofs, confirming that every state update is valid without revealing sensitive data.
+
+**Recursive Proofs**
+
+Multiple actions are merged into a single, compressed proof (“proofs of proofs”) drastically reducing verification costs while maintaining full traceability.
+
+Example:
+
+```
+p1, p2, p3 → P12 (validates p1 & p2) → P (validates P12 & p3)
+```
+
+Now, verifying `P` ensures all previous actions are valid.
+
+### Silvana API Integration
+
+The Silvana API connects Sui and Zeko by:
+
+1. Collecting verified events from Sui,
+2. Generating zk proofs that these actions occurred correctly,
+3. Submitting those proofs to the Zeko zkApp for settlement.
+
+This process transfers the game state securely from Sui to Zeko, ensuring final, tamper-proof results.
